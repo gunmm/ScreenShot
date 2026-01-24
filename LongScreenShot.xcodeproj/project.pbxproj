@@ -1,0 +1,907 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CDE361792F24980B0020E3EF /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE361782F24980B0020E3EF /* ReplayKit.framework */; };
+		CDE361832F24980B0020E3EF /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE361782F24980B0020E3EF /* ReplayKit.framework */; };
+		CDE361852F24980B0020E3EF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE361842F24980B0020E3EF /* UIKit.framework */; };
+		CDE3618C2F24980B0020E3EF /* ScreenCaptureSetupUI.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDE361822F24980B0020E3EF /* ScreenCaptureSetupUI.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CDE3618F2F24980B0020E3EF /* ScreenCapture.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDE361762F24980B0020E3EF /* ScreenCapture.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CDE3613E2F2493380020E3EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDE3611F2F2493370020E3EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CDE361262F2493370020E3EF;
+			remoteInfo = LongScreenShot;
+		};
+		CDE361482F2493380020E3EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDE3611F2F2493370020E3EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CDE361262F2493370020E3EF;
+			remoteInfo = LongScreenShot;
+		};
+		CDE3618A2F24980B0020E3EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDE3611F2F2493370020E3EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CDE361812F24980B0020E3EF;
+			remoteInfo = ScreenCaptureSetupUI;
+		};
+		CDE3618D2F24980B0020E3EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDE3611F2F2493370020E3EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CDE361752F24980B0020E3EF;
+			remoteInfo = ScreenCapture;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CDE361982F24980B0020E3EF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CDE3618C2F24980B0020E3EF /* ScreenCaptureSetupUI.appex in Embed Foundation Extensions */,
+				CDE3618F2F24980B0020E3EF /* ScreenCapture.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CDE361272F2493370020E3EF /* LongScreenShot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LongScreenShot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDE3613D2F2493380020E3EF /* LongScreenShotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LongScreenShotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDE361472F2493380020E3EF /* LongScreenShotUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LongScreenShotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDE361762F24980B0020E3EF /* ScreenCapture.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScreenCapture.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDE361782F24980B0020E3EF /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
+		CDE361822F24980B0020E3EF /* ScreenCaptureSetupUI.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScreenCaptureSetupUI.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDE361842F24980B0020E3EF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CDE3614F2F2493380020E3EF /* Exceptions for "LongScreenShot" folder in "LongScreenShot" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CDE361262F2493370020E3EF /* LongScreenShot */;
+		};
+		CDE361932F24980B0020E3EF /* Exceptions for "ScreenCaptureSetupUI" folder in "ScreenCaptureSetupUI" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CDE361812F24980B0020E3EF /* ScreenCaptureSetupUI */;
+		};
+		CDE361972F24980B0020E3EF /* Exceptions for "ScreenCapture" folder in "ScreenCapture" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CDE361752F24980B0020E3EF /* ScreenCapture */;
+		};
+		CDE361A32F24AB7E0020E3EF /* Exceptions for "LongScreenShot" folder in "ScreenCapture" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Shared/AppGroupConfig.swift,
+				Shared/ChunkManager.swift,
+				Shared/ImageStitcher.swift,
+			);
+			target = CDE361752F24980B0020E3EF /* ScreenCapture */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		CDE361292F2493370020E3EF /* LongScreenShot */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CDE3614F2F2493380020E3EF /* Exceptions for "LongScreenShot" folder in "LongScreenShot" target */,
+				CDE361A32F24AB7E0020E3EF /* Exceptions for "LongScreenShot" folder in "ScreenCapture" target */,
+			);
+			path = LongScreenShot;
+			sourceTree = "<group>";
+		};
+		CDE361402F2493380020E3EF /* LongScreenShotTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LongScreenShotTests;
+			sourceTree = "<group>";
+		};
+		CDE3614A2F2493380020E3EF /* LongScreenShotUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LongScreenShotUITests;
+			sourceTree = "<group>";
+		};
+		CDE3617A2F24980B0020E3EF /* ScreenCapture */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CDE361972F24980B0020E3EF /* Exceptions for "ScreenCapture" folder in "ScreenCapture" target */,
+			);
+			path = ScreenCapture;
+			sourceTree = "<group>";
+		};
+		CDE361862F24980B0020E3EF /* ScreenCaptureSetupUI */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CDE361932F24980B0020E3EF /* Exceptions for "ScreenCaptureSetupUI" folder in "ScreenCaptureSetupUI" target */,
+			);
+			path = ScreenCaptureSetupUI;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CDE361242F2493370020E3EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE3613A2F2493380020E3EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE361442F2493380020E3EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE361732F24980B0020E3EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDE361792F24980B0020E3EF /* ReplayKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE3617F2F24980B0020E3EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDE361832F24980B0020E3EF /* ReplayKit.framework in Frameworks */,
+				CDE361852F24980B0020E3EF /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CDE3611E2F2493370020E3EF = {
+			isa = PBXGroup;
+			children = (
+				CDE361292F2493370020E3EF /* LongScreenShot */,
+				CDE361402F2493380020E3EF /* LongScreenShotTests */,
+				CDE3614A2F2493380020E3EF /* LongScreenShotUITests */,
+				CDE3617A2F24980B0020E3EF /* ScreenCapture */,
+				CDE361862F24980B0020E3EF /* ScreenCaptureSetupUI */,
+				CDE361772F24980B0020E3EF /* Frameworks */,
+				CDE361282F2493370020E3EF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CDE361282F2493370020E3EF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CDE361272F2493370020E3EF /* LongScreenShot.app */,
+				CDE3613D2F2493380020E3EF /* LongScreenShotTests.xctest */,
+				CDE361472F2493380020E3EF /* LongScreenShotUITests.xctest */,
+				CDE361762F24980B0020E3EF /* ScreenCapture.appex */,
+				CDE361822F24980B0020E3EF /* ScreenCaptureSetupUI.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CDE361772F24980B0020E3EF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CDE361782F24980B0020E3EF /* ReplayKit.framework */,
+				CDE361842F24980B0020E3EF /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CDE361262F2493370020E3EF /* LongScreenShot */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDE361502F2493380020E3EF /* Build configuration list for PBXNativeTarget "LongScreenShot" */;
+			buildPhases = (
+				CDE361232F2493370020E3EF /* Sources */,
+				CDE361242F2493370020E3EF /* Frameworks */,
+				CDE361252F2493370020E3EF /* Resources */,
+				CDE361982F24980B0020E3EF /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CDE3618B2F24980B0020E3EF /* PBXTargetDependency */,
+				CDE3618E2F24980B0020E3EF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CDE361292F2493370020E3EF /* LongScreenShot */,
+			);
+			name = LongScreenShot;
+			packageProductDependencies = (
+			);
+			productName = LongScreenShot;
+			productReference = CDE361272F2493370020E3EF /* LongScreenShot.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CDE3613C2F2493380020E3EF /* LongScreenShotTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDE361552F2493380020E3EF /* Build configuration list for PBXNativeTarget "LongScreenShotTests" */;
+			buildPhases = (
+				CDE361392F2493380020E3EF /* Sources */,
+				CDE3613A2F2493380020E3EF /* Frameworks */,
+				CDE3613B2F2493380020E3EF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CDE3613F2F2493380020E3EF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CDE361402F2493380020E3EF /* LongScreenShotTests */,
+			);
+			name = LongScreenShotTests;
+			packageProductDependencies = (
+			);
+			productName = LongScreenShotTests;
+			productReference = CDE3613D2F2493380020E3EF /* LongScreenShotTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CDE361462F2493380020E3EF /* LongScreenShotUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDE361582F2493380020E3EF /* Build configuration list for PBXNativeTarget "LongScreenShotUITests" */;
+			buildPhases = (
+				CDE361432F2493380020E3EF /* Sources */,
+				CDE361442F2493380020E3EF /* Frameworks */,
+				CDE361452F2493380020E3EF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CDE361492F2493380020E3EF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CDE3614A2F2493380020E3EF /* LongScreenShotUITests */,
+			);
+			name = LongScreenShotUITests;
+			packageProductDependencies = (
+			);
+			productName = LongScreenShotUITests;
+			productReference = CDE361472F2493380020E3EF /* LongScreenShotUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		CDE361752F24980B0020E3EF /* ScreenCapture */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDE361942F24980B0020E3EF /* Build configuration list for PBXNativeTarget "ScreenCapture" */;
+			buildPhases = (
+				CDE361722F24980B0020E3EF /* Sources */,
+				CDE361732F24980B0020E3EF /* Frameworks */,
+				CDE361742F24980B0020E3EF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CDE3617A2F24980B0020E3EF /* ScreenCapture */,
+			);
+			name = ScreenCapture;
+			packageProductDependencies = (
+			);
+			productName = ScreenCapture;
+			productReference = CDE361762F24980B0020E3EF /* ScreenCapture.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		CDE361812F24980B0020E3EF /* ScreenCaptureSetupUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDE361902F24980B0020E3EF /* Build configuration list for PBXNativeTarget "ScreenCaptureSetupUI" */;
+			buildPhases = (
+				CDE3617E2F24980B0020E3EF /* Sources */,
+				CDE3617F2F24980B0020E3EF /* Frameworks */,
+				CDE361802F24980B0020E3EF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CDE361862F24980B0020E3EF /* ScreenCaptureSetupUI */,
+			);
+			name = ScreenCaptureSetupUI;
+			packageProductDependencies = (
+			);
+			productName = ScreenCaptureSetupUI;
+			productReference = CDE361822F24980B0020E3EF /* ScreenCaptureSetupUI.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CDE3611F2F2493370020E3EF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					CDE361262F2493370020E3EF = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					CDE3613C2F2493380020E3EF = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = CDE361262F2493370020E3EF;
+					};
+					CDE361462F2493380020E3EF = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = CDE361262F2493370020E3EF;
+					};
+					CDE361752F24980B0020E3EF = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					CDE361812F24980B0020E3EF = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = CDE361222F2493370020E3EF /* Build configuration list for PBXProject "LongScreenShot" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CDE3611E2F2493370020E3EF;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = CDE361282F2493370020E3EF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CDE361262F2493370020E3EF /* LongScreenShot */,
+				CDE3613C2F2493380020E3EF /* LongScreenShotTests */,
+				CDE361462F2493380020E3EF /* LongScreenShotUITests */,
+				CDE361752F24980B0020E3EF /* ScreenCapture */,
+				CDE361812F24980B0020E3EF /* ScreenCaptureSetupUI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CDE361252F2493370020E3EF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE3613B2F2493380020E3EF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE361452F2493380020E3EF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE361742F24980B0020E3EF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE361802F24980B0020E3EF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CDE361232F2493370020E3EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE361392F2493380020E3EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE361432F2493380020E3EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE361722F24980B0020E3EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE3617E2F24980B0020E3EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CDE3613F2F2493380020E3EF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CDE361262F2493370020E3EF /* LongScreenShot */;
+			targetProxy = CDE3613E2F2493380020E3EF /* PBXContainerItemProxy */;
+		};
+		CDE361492F2493380020E3EF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CDE361262F2493370020E3EF /* LongScreenShot */;
+			targetProxy = CDE361482F2493380020E3EF /* PBXContainerItemProxy */;
+		};
+		CDE3618B2F24980B0020E3EF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CDE361812F24980B0020E3EF /* ScreenCaptureSetupUI */;
+			targetProxy = CDE3618A2F24980B0020E3EF /* PBXContainerItemProxy */;
+		};
+		CDE3618E2F24980B0020E3EF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CDE361752F24980B0020E3EF /* ScreenCapture */;
+			targetProxy = CDE3618D2F24980B0020E3EF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		CDE361512F2493380020E3EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LongScreenShot/LongScreenShot.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LongScreenShot/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Need access to save the long screenshot to your gallery.";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotMZ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CDE361522F2493380020E3EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LongScreenShot/LongScreenShot.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LongScreenShot/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Need access to save the long screenshot to your gallery.";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotMZ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CDE361532F2493380020E3EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		CDE361542F2493380020E3EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CDE361562F2493380020E3EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LongScreenShot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LongScreenShot";
+			};
+			name = Debug;
+		};
+		CDE361572F2493380020E3EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LongScreenShot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LongScreenShot";
+			};
+			name = Release;
+		};
+		CDE361592F2493380020E3EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LongScreenShot;
+			};
+			name = Debug;
+		};
+		CDE3615A2F2493380020E3EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LongScreenShot;
+			};
+			name = Release;
+		};
+		CDE361912F24980B0020E3EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScreenCaptureSetupUI/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ScreenCaptureSetupUI;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotMZ.ScreenCaptureSetupUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CDE361922F24980B0020E3EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScreenCaptureSetupUI/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ScreenCaptureSetupUI;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotMZ.ScreenCaptureSetupUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CDE361952F24980B0020E3EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ScreenCapture/ScreenCapture.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScreenCapture/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ScreenCapture;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotMZ.ScreenCapture;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CDE361962F24980B0020E3EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ScreenCapture/ScreenCapture.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7233V8552Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScreenCapture/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ScreenCapture;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotMZ.ScreenCapture;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CDE361222F2493370020E3EF /* Build configuration list for PBXProject "LongScreenShot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDE361532F2493380020E3EF /* Debug */,
+				CDE361542F2493380020E3EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CDE361502F2493380020E3EF /* Build configuration list for PBXNativeTarget "LongScreenShot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDE361512F2493380020E3EF /* Debug */,
+				CDE361522F2493380020E3EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CDE361552F2493380020E3EF /* Build configuration list for PBXNativeTarget "LongScreenShotTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDE361562F2493380020E3EF /* Debug */,
+				CDE361572F2493380020E3EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CDE361582F2493380020E3EF /* Build configuration list for PBXNativeTarget "LongScreenShotUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDE361592F2493380020E3EF /* Debug */,
+				CDE3615A2F2493380020E3EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CDE361902F24980B0020E3EF /* Build configuration list for PBXNativeTarget "ScreenCaptureSetupUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDE361912F24980B0020E3EF /* Debug */,
+				CDE361922F24980B0020E3EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CDE361942F24980B0020E3EF /* Build configuration list for PBXNativeTarget "ScreenCapture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDE361952F24980B0020E3EF /* Debug */,
+				CDE361962F24980B0020E3EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CDE3611F2F2493370020E3EF /* Project object */;
+}
