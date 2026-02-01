@@ -41,7 +41,6 @@ class ViewController: UIViewController {
         
         // 2.2 Calculate Overlap Button (Debug)
         calcOverlapButton.setTitle("Debug: Calc Overlap Logs", for: .normal)
-        calcOverlapButton.addTarget(self, action: #selector(runOverlapCalculation), for: .touchUpInside)
         calcOverlapButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(calcOverlapButton)
 
@@ -189,27 +188,5 @@ class ViewController: UIViewController {
         let vc = ChunksPreviewViewController()
         let nav = UINavigationController(rootViewController: vc)
         present(nav, animated: true, completion: nil)
-    }
-    @objc private func runOverlapCalculation() {
-        let chunksWithOffsets = ChunkManager.shared.loadAllChunks()
-        let chunks = chunksWithOffsets.map { $0.image }
-        
-        guard !chunks.isEmpty else {
-            statusLabel.text = "No chunks to calculate overlap."
-            return
-        }
-        
-        statusLabel.text = "Calculating overlaps (See logs)..."
-        
-        ImageOverlapCalculator.calculateOverlaps(images: chunks) { results in
-            DispatchQueue.main.async {
-                self.statusLabel.text = "Overlap Calc Done! Check Console."
-                print("\n=== Overlap Calculation Results ===")
-                for res in results {
-                    print(res)
-                }
-                print("===================================")
-            }
-        }
     }
 }
