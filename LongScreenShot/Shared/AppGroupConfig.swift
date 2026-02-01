@@ -18,6 +18,7 @@ struct AppGroupConfig {
     static func ensureChunkDirectoryExists() {
         guard let url = chunkDirectoryURL else { return }
         if !FileManager.default.fileExists(atPath: url.path) {
+            print("---*** 确认文件夹为空：\(url.path)")
             try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
         }
     }

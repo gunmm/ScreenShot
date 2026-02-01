@@ -95,9 +95,11 @@
 		CDE361A32F24AB7E0020E3EF /* Exceptions for "LongScreenShot" folder in "ScreenCapture" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				3rd/opencv2.framework,
 				Shared/AppGroupConfig.swift,
 				Shared/ChunkManager.swift,
-				Shared/ImageStitcher.swift,
+				Shared/OpenCVWrapper.mm,
+				Shared/Test.m,
 			);
 			target = CDE361752F24980B0020E3EF /* ScreenCapture */;
 		};
@@ -347,6 +349,7 @@
 				TargetAttributes = {
 					CDE361262F2493370020E3EF = {
 						CreatedOnToolsVersion = 16.2;
+						LastSwiftMigration = 1620;
 					};
 					CDE3613C2F2493380020E3EF = {
 						CreatedOnToolsVersion = 16.2;
@@ -492,10 +495,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LongScreenShot/LongScreenShot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7233V8552Q;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/LongScreenShot/3rd",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LongScreenShot/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Need access to save the long screenshot to your gallery.";
@@ -512,6 +520,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotMZ;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "LongScreenShot/Shared/LongScreenShot-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -522,10 +532,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LongScreenShot/LongScreenShot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7233V8552Q;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/LongScreenShot/3rd",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LongScreenShot/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Need access to save the long screenshot to your gallery.";
@@ -542,6 +557,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.gunmm.LongScreenShotMZ;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "LongScreenShot/Shared/LongScreenShot-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -758,6 +774,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -783,6 +800,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -796,6 +814,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7233V8552Q;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/LongScreenShot/3rd";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScreenCapture/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ScreenCapture;
@@ -811,6 +830,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "LongScreenShot/Shared/LongScreenShot-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -824,6 +844,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7233V8552Q;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/LongScreenShot/3rd";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScreenCapture/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ScreenCapture;
@@ -839,6 +860,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "LongScreenShot/Shared/LongScreenShot-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -8,6 +8,8 @@ class ViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let imageView = UIImageView()
     private let stitchButton = UIButton(type: .system)
+    private let previewButton = UIButton(type: .system) // New button
+    private let calcOverlapButton = UIButton(type: .system) // New debug button
     private let saveButton = UIButton(type: .system)
     private let statusLabel = UILabel()
 
@@ -20,11 +22,7 @@ class ViewController: UIViewController {
         view.backgroundColor = .systemBackground
         title = "Long Screenshot"
         
-        // 1. Broadcast Picker
-        // Note: The preferredExtension property must match the Bundle Identifier of the Extension
-        // User needs to set this manually or I can leave it nil to show all. 
-        // Best practice: set it to specific extension.
-        // broadcastPicker.preferredExtension = "com.yourname.LongScreenShot.BroadCastExtension"
+        // ... (broadcastPicker setup remains) ...
         
         broadcastPicker.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(broadcastPicker)
@@ -34,6 +32,19 @@ class ViewController: UIViewController {
         stitchButton.addTarget(self, action: #selector(generateLongScreenshot), for: .touchUpInside)
         stitchButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stitchButton)
+        
+        // 2.1 Preview Button
+        previewButton.setTitle("Debug: Preview Chunks", for: .normal)
+        previewButton.addTarget(self, action: #selector(showPreview), for: .touchUpInside)
+        previewButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(previewButton)
+        
+        // 2.2 Calculate Overlap Button (Debug)
+        calcOverlapButton.setTitle("Debug: Calc Overlap Logs", for: .normal)
+        calcOverlapButton.addTarget(self, action: #selector(runOverlapCalculation), for: .touchUpInside)
+        calcOverlapButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(calcOverlapButton)
+
         
         // 3. Save Button
         saveButton.setTitle("Save to Photos", for: .normal)
@@ -66,7 +77,15 @@ class ViewController: UIViewController {
             stitchButton.topAnchor.constraint(equalTo: broadcastPicker.bottomAnchor, constant: 20),
             stitchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            statusLabel.topAnchor.constraint(equalTo: stitchButton.bottomAnchor, constant: 8),
+            previewButton.topAnchor.constraint(equalTo: stitchButton.bottomAnchor, constant: 10),
+            previewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            previewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            calcOverlapButton.topAnchor.constraint(equalTo: previewButton.bottomAnchor, constant: 10),
+            calcOverlapButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            statusLabel.topAnchor.constraint(equalTo: calcOverlapButton.bottomAnchor, constant: 8),
             statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
@@ -88,109 +107,54 @@ class ViewController: UIViewController {
     
     @objc private func generateLongScreenshot() {
         // Load chunks
-        let chunks = ChunkManager.shared.loadAllChunks()
-        guard !chunks.isEmpty else {
-            statusLabel.text = "No chunks found. Did you record and scroll?"
-            return
-        }
+        // ChunkManager loads (image, offset). We only care about images now.
+//        let chunksWithOffsets = ChunkManager.shared.loadAllChunks()
+//        let chunks = chunksWithOffsets.map { $0.image }
+//        
+//        guard !chunks.isEmpty else {
+//            statusLabel.text = "No chunks found. Did you record and scroll?"
+//            return
+//        }
+//        
+//        statusLabel.text = "Stitching \(chunks.count) frames (Deep Analysis)..."
         
-        statusLabel.text = "Stitching \(chunks.count) frames..."
-        
-        // Simple Vertical Stitching
-        // Calculate total height
-        // First image is full height (cropped). Subsequent images are stitched with offset.
-        // Actually, we saved chunks cropped. But we also have offsets relative to *movement*.
-        // If our logic in SampleHandler was:
-        // Frame 0: Save Full (Cropped)
-        // Frame 1: Offset detected = 20px. Saved Full (Cropped).
-        // That means Frame 1 is shifted UP by 20px. So new content is 20px at the bottom?
-        // Wait, standard scroll down: content moves UP.
-        // If content moves UP by 20px, the bottom 20px of screen is new.
-        // SampleHandler saved the whole frame.
-        // So we need to take the bottom 'offset' pixels of the new frame and append it?
-        // YES.
-        
-        // Wait, SampleHandler logic:
-        // findOffset return Y.
-        // If Y > 0, it means PREV row Y matches CURR row 0.
-        // PREV:
-        // [ A ]
-        // [ B ]
-        // [ C ]
-        // CURR (Scrolled down, camera moved down, content moved up):
-        // [ B ]
-        // [ C ]
-        // [ D ]
-        // Stitcher found row 0 of CURR (B) matches row 1 of PREV (B). Offset = 1.
-        // So CURR is shifted UP by 1 unit relative to PREV.
-        // The new content is D.
-        // D is at the bottom.
-        // We need to keep PREV [A, B, C] and append [D].
-        // D corresponds to the bottom 'Offset' pixels of CURR.
-        
-        var totalHeight: CGFloat = 0
-        let width = chunks[0].image.size.width
-        
-        // First image: keep all
-        totalHeight += chunks[0].image.size.height
-        
-        // Subsequent: keep only offset amount
-        for i in 1..<chunks.count {
-            let offset = CGFloat(chunks[i].offset)
-            totalHeight += offset
-        }
-        
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: totalHeight), false, 0.0)
-        
-        var currentY: CGFloat = 0
-        
-        // Draw first
-        chunks[0].image.draw(at: CGPoint(x: 0, y: 0))
-        currentY += chunks[0].image.size.height
-        
-        // Draw subsequent (slices)
-        for i in 1..<chunks.count {
-            let img = chunks[i].image
-            let offset = CGFloat(chunks[i].offset)
+        // Run on background thread to avoid blocking UI
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let image1 = UIImage(named: "photo1.PNG"),
+               let image2 = UIImage(named: "photo2.PNG"),
+               let image3 = UIImage(named: "photo3.PNG"),
+               let image4 = UIImage(named: "photo4.PNG"),
+               let image5 = UIImage(named: "photo5.PNG"),
+               let image6 = UIImage(named: "photo6.PNG") {
+
             
-            // We need bottom 'offset' slice of img
-            // Since img is 'whole screen cropped', height is H.
-            // We want the rect: y = H - offset, h = offset
-            
-            let sliceHeight = offset
-            let sliceY = img.size.height - sliceHeight
-            
-            // Draw into context
-            // But wait! If we append, we append to the bottom.
-            // Correct.
-            // Crop the slice from the new image
-            if let cgImage = img.cgImage {
-                let cropRect = CGRect(x: 0, y: sliceY, width: width, height: sliceHeight)
-                if let slice = cgImage.cropping(to: cropRect) {
-                    let sliceImg = UIImage(cgImage: slice)
-                     // Note: currentY is where we *stopped* drawing the previous image.
-                     // But previous image was full height.
-                     // If we just append, we are good.
-                     // But wait.
-                     // Frame 0: [A B C], H=3.
-                     // Frame 1: [B C D], Offset=1. Slice [D].
-                     // If we draw Frame 0 fully: [A B C]
-                     // Then append D: [A B C D]. Length 4. Correct.
-                     
-                     sliceImg.draw(in: CGRect(x: 0, y: currentY, width: width, height: sliceHeight))
-                     currentY += sliceHeight
+                let stitchedImage = ImageStitcher.stitch(images: [image1, image2,image3, image4, image5,image6])
+                print("")
+                DispatchQueue.main.async {
+                    if let result = stitchedImage {
+                        self.imageView.image = result
+                        self.imageView.sizeToFit()
+                        self.scrollView.contentSize = self.imageView.frame.size
+                        self.saveButton.isEnabled = true
+                        self.statusLabel.text = "Stitched! Size: \(Int(result.size.width))x\(Int(result.size.height))"
+                    } else {
+                        self.statusLabel.text = "Stitching failed."
+                    }
                 }
             }
+            
+//            DispatchQueue.main.async {
+//                if let result = stitchedImage {
+//                    self.imageView.image = result
+//                    self.imageView.sizeToFit()
+//                    self.scrollView.contentSize = self.imageView.frame.size
+//                    self.saveButton.isEnabled = true
+//                    self.statusLabel.text = "Stitched! Size: \(Int(result.size.width))x\(Int(result.size.height))"
+//                } else {
+//                    self.statusLabel.text = "Stitching failed."
+//                }
+//            }
         }
-        
-        let finalImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        imageView.image = finalImage
-        imageView.sizeToFit()
-        scrollView.contentSize = imageView.frame.size
-        saveButton.isEnabled = true
-        statusLabel.text = "Stitched! Size: \(Int(width))x\(Int(totalHeight))"
     }
     
     @objc private func saveToPhotos() {
@@ -218,6 +182,34 @@ class ViewController: UIViewController {
             statusLabel.text = "Error saving: \(error.localizedDescription)"
         } else {
             statusLabel.text = "Saved to Photos!"
+        }
+    }
+    
+    @objc private func showPreview() {
+        let vc = ChunksPreviewViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        present(nav, animated: true, completion: nil)
+    }
+    @objc private func runOverlapCalculation() {
+        let chunksWithOffsets = ChunkManager.shared.loadAllChunks()
+        let chunks = chunksWithOffsets.map { $0.image }
+        
+        guard !chunks.isEmpty else {
+            statusLabel.text = "No chunks to calculate overlap."
+            return
+        }
+        
+        statusLabel.text = "Calculating overlaps (See logs)..."
+        
+        ImageOverlapCalculator.calculateOverlaps(images: chunks) { results in
+            DispatchQueue.main.async {
+                self.statusLabel.text = "Overlap Calc Done! Check Console."
+                print("\n=== Overlap Calculation Results ===")
+                for res in results {
+                    print(res)
+                }
+                print("===================================")
+            }
         }
     }
 }

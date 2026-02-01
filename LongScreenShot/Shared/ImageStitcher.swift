@@ -1,130 +1,135 @@
 import Foundation
-import CoreVideo
-import CoreImage
 import UIKit
 
 class ImageStitcher {
-    
-    // Configuration for cropping fixed elements
-    // These values might need adjustment based on device model, 
-    // or can be detected dynamically. For now, use safe defaults or percentage based.
-    private let topCutHeightRatio: CGFloat = 0.12 // Approx status bar + nav bar area
-    private let bottomCutHeightRatio: CGFloat = 0.1 // Approx home indicator area
-    
-    private let context = CIContext()
-    
-    // Finds the vertical offset between two pixel buffers
-    func findOffset(prevBuffer: CVPixelBuffer, currBuffer: CVPixelBuffer) -> Int {
-        // Simple pixel comparison or Optical Flow. 
-        // For scrolling text/content, a scanline comparison is often efficient enough.
-        
-        // Convert to CIImages
-        let prevImage = CIImage(cvPixelBuffer: prevBuffer)
-        let currImage = CIImage(cvPixelBuffer: currBuffer)
-        
-        // Optimization: Crop to center vertical strip to avoid scrollbar noise if any
-        // And convert to grayscale to speed up
-        
-        // Simplified approach for MVP:
-        // We will assume vertical scrolling.
-        // We check row by row. 
-        // This is computationally expensive in Swift without Metal/Accelerate for full resolution.
-        // For MVP, we will assume a "dumb" implementation that relies on SampleHandler calling this 
-        // and we delegate the heavy lifting to the main app or keep it very simple here.
-        // BUT, SampleHandler needs to decide whether to save.
-        
-        // Let's implement a basic row sampling using vImage or raw pointers if possible.
-        // Or better, since we are in a high-level agent, let's write safe Swift code accessing CVPixelBuffer.
-        
-        CVPixelBufferLockBaseAddress(prevBuffer, .readOnly)
-        CVPixelBufferLockBaseAddress(currBuffer, .readOnly)
-        
-        defer {
-            CVPixelBufferUnlockBaseAddress(prevBuffer, .readOnly)
-            CVPixelBufferUnlockBaseAddress(currBuffer, .readOnly)
+    static func stitch(images: [UIImage]) -> UIImage? {
+        guard images.count >= 2 else {
+            print("Need at least 2 images to stitch.")
+            return images.first
         }
         
-        let width = CVPixelBufferGetWidth(prevBuffer)
-        let height = CVPixelBufferGetHeight(prevBuffer)
-        let bytesPerRow = CVPixelBufferGetBytesPerRow(prevBuffer)
+        var cropRects: [CGRect] = []
         
-        guard let prevBase = CVPixelBufferGetBaseAddress(prevBuffer),
-              let currBase = CVPixelBufferGetBaseAddress(currBuffer) else { return 0 }
+        // We need to determine the "valid range" for each image.
+        // Img 0: [0 ... CutBottom]
+        // Img i: [CutTop ... CutBottom]
+        // Img N: [CutTop ... Height]
         
-        let prevPtr = prevBase.assumingMemoryBound(to: UInt8.self)
-        let currPtr = currBase.assumingMemoryBound(to: UInt8.self)
-        
-        // Check center column to find offset
-        // We search how much 'curr' has moved UP compared to 'prev'
-        // That means the top of 'curr' should match somewhere in 'prev'
-        
-        // Search range: look for the top row of CURR inside PREV.
-        // It should be strictly below the top of PREV if we scrolled down.
-        // PREV: [ A B C D ]
-        // CURR: [ B C D E ]
-        // We look for row 'B' (row 0 of CURR) inside PREV. It should be at row 1 of PREV. Offset = 1.
-        
-        let searchLimit = height / 3 // Don't search more than 1/3 screen scroll per frame
-        let centerX = width / 2
-        let step = 4 // Subsampling for speed
-        
-        // We will match a block of lines for robustness
-        let blockHeight = 20
-        
-        for y in 1..<searchLimit {
-             if matchRows(yInPrev: y, yInCurr: 0, height: blockHeight, width: width, centerX: centerX, prevPtr: prevPtr, currPtr: currPtr, bytesPerRow: bytesPerRow) {
-                 return y
-             }
+        var validRanges: [(start: Int, end: Int)] = []
+        for img in images {
+            let h = Int(img.size.height * img.scale) // Work in pixels
+            validRanges.append((0, h))
         }
         
-        return 0
-    }
-    
-    private func matchRows(yInPrev: Int, yInCurr: Int, height: Int, width: Int, centerX: Int, prevPtr: UnsafePointer<UInt8>, currPtr: UnsafePointer<UInt8>, bytesPerRow: Int) -> Bool {
-        // Compare a block of rows
-        for h in 0..<height {
-            // Compare a horizontal strip in the middle
-            // Just comparing 50 pixels in the center for speed
-            for x in (centerX - 25)..<(centerX + 25) {
-                let prevIdx = (yInPrev + h) * bytesPerRow + x * 4 // Assuming BGRA
-                let currIdx = (yInCurr + h) * bytesPerRow + x * 4
+        for i in 0..<(images.count - 1) {
+            let img1 = images[i]
+            let img2 = images[i+1]
+            
+            // Call OpenCV wrapper
+            let result = OpenCVWrapper.findOverlapBetween(img1, and: img2)
+            
+            // Expected keys: "offsetY" (CutPointInImg1), "confidence", "matchYInImg2"
+            if let cutPointNum = result["offsetY"] as? NSNumber,
+               let confidenceNum = result["confidence"] as? NSNumber,
+               let matchYInImg2Num = result["matchYInImg2"] as? NSNumber {
                 
-                // Compare R, G, B. Ignore A.
-                let diff = abs(Int(prevPtr[prevIdx]) - Int(currPtr[currIdx])) +
-                           abs(Int(prevPtr[prevIdx+1]) - Int(currPtr[currIdx+1])) +
-                           abs(Int(prevPtr[prevIdx+2]) - Int(currPtr[currIdx+2]))
+                let cutPointInImg1 = cutPointNum.intValue
+                let confidence = confidenceNum.doubleValue
+                let matchYInImg2 = matchYInImg2Num.intValue
                 
-                if diff > 10 { // Threshold for compression noise
-                    return false
+                print("Match Pair \(i)->\(i+1): Conf=\(confidence), CutPointInImg1=\(cutPointInImg1), MinMatchY2=\(matchYInImg2)")
+
+                // ORB confidence check
+                if confidence > 0.2 && cutPointInImg1 > 0 && cutPointInImg1 < Int(img1.size.height * img1.scale) {
+                    
+                    // Logic Update:
+                    // matchYInImg2 is the "Top" of the overlapping content in Img2.
+                    // This means 0...matchYInImg2 in Img2 is "Header" or "Top Overlap that didn't match".
+                    // The User wants to remove this Top part of Img2.
+                    
+                    let cutTop2 = matchYInImg2
+                    
+                    // To stitch seamlessly, Img1 must end where Img2 starts.
+                    // Img2 starts at matchYInImg2.
+                    // Corresponding point in Img1 = matchYInImg2 + Shift(offsetY).
+                    // Wait, Shift = Y1 - Y2.
+                    // Y1 = Y2 + Shift.
+                    // So Img1 Point = cutTop2 + cutPointInImg1(which is Shift).
+                    // Actually my wrapper returns 'offsetY' as the Shift.
+                    // So cutBottom1 = cutTop2 + cutPointInImg1.
+                    
+                    // Safety:
+                    let calculatedCutBottom1 = cutTop2 + cutPointInImg1
+                    let cutBottom1 = min(calculatedCutBottom1, Int(img1.size.height * img1.scale))
+                    
+                    // Let's output these values.
+                    validRanges[i].end = cutBottom1
+                    validRanges[i+1].start = cutTop2
+                    
+                    print("  -> Cutting Img\(i) Bottom at: \(cutBottom1)")
+                    print("  -> Cutting Img\(i+1) Top at: \(cutTop2)")
+                    
+                } else {
+                    print("Low confidence or invalid cut point for pair \(i)->\(i+1).")
                 }
+            } else {
+                print("No overlap found for pair \(i)->\(i+1).")
             }
         }
-        return true
-    }
-    
-    // Crops fixed UI (Header/Footer) and returns a UIImage
-    func processAndCrop(buffer: CVPixelBuffer) -> UIImage? {
-        let ciImage = CIImage(cvPixelBuffer: buffer)
-        let width = CGFloat(CVPixelBufferGetWidth(buffer))
-        let height = CGFloat(CVPixelBufferGetHeight(buffer))
         
-        let topCut = height * topCutHeightRatio
-        let bottomCut = height * bottomCutHeightRatio
-        let cropRect = CGRect(x: 0, y: bottomCut, width: width, height: height - topCut - bottomCut)
+        // Now calculate total height and draw
+        guard let firstCG = images[0].cgImage else { return nil }
+        let width = firstCG.width
+        var totalHeight = 0
         
-        // Note: CIImage origin is bottom-left, but UIKit is top-left.
-        // CIImage cropping usually takes coordinates in its own space.
-        // Actually for screen coordinate parity, it's easier to use CGImage.
+        print("--- Final Stitching Ranges ---")
+        for (index, range) in validRanges.enumerated() {
+            let h = range.end - range.start
+            print("Img\(index): Range [\(range.start) - \(range.end)], Height: \(h)")
+            if h > 0 {
+                totalHeight += h
+            }
+        }
         
-        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return nil }
+        if totalHeight <= 0 { return nil }
         
-        // Crop using CoreGraphics (Origin is Top-Left for CGImageCreateWithImageInRect?? No, it varies.)
-        // Let's do a safe crop based on image logic.
+        if totalHeight <= 0 { return nil }
         
-        let unsafeCropRect = CGRect(x: 0, y: topCut, width: width, height: height - topCut - bottomCut)
+        let totalSize = CGSize(width: CGFloat(width), height: CGFloat(totalHeight))
         
-        guard let croppedCG = cgImage.cropping(to: unsafeCropRect) else { return nil }
+        // Use UIGraphicsBeginImageContextWithOptions with scale 1.0 to work in "Pixels" as "Points".
+        // This ensures (0,0) is Top-Left, eliminating coordinate confusion.
+        UIGraphicsBeginImageContextWithOptions(totalSize, false, 1.0)
         
-        return UIImage(cgImage: croppedCG)
+        var currentY: CGFloat = 0
+        for (index, img) in images.enumerated() {
+            guard let cg = img.cgImage else { continue }
+            
+            let range = validRanges[index]
+            let h = range.end - range.start
+            if h <= 0 { continue }
+            
+            let cropRect = CGRect(x: 0, y: range.start, width: width, height: h)
+            if let cropped = cg.cropping(to: cropRect) {
+                // Determine rect in our context
+                let drawRect = CGRect(x: 0, y: currentY, width: CGFloat(width), height: CGFloat(h))
+                
+                // Draw using UIKit wrapper to handle orientation automatically
+                let cropImg = UIImage(cgImage: cropped)
+                cropImg.draw(in: drawRect)
+                
+                currentY += CGFloat(h)
+            }
+        }
+        
+        let resultImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        // Restore the original scale if needed
+        if let cgResult = resultImage?.cgImage {
+            return UIImage(cgImage: cgResult, scale: images[0].scale, orientation: .up)
+        }
+        
+        return resultImage
     }
 }

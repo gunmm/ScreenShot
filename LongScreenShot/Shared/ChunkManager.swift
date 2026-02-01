@@ -12,26 +12,16 @@ class ChunkManager {
     
     private init() {}
     
-    func saveChunk(image: UIImage, index: Int, offset: Int) {
+    func saveChunk(image: UIImage, index: Int) {
         guard let data = image.jpegData(compressionQuality: 0.8) else { return }
         guard let dir = AppGroupConfig.chunkDirectoryURL else { return }
         
-        let filename = "chunk_\(index).jpg"
+        let filename = String(format: "chunk_%04d.jpg", index)
         let fileURL = dir.appendingPathComponent(filename)
         
         do {
             try data.write(to: fileURL)
-            // Ideally we'd save metadata separately or encoding into filename, 
-            // but for simplicity, we'll assume filename order is enough or use a separate plist.
-            // Let's use a simple naming convention for now: "chunk_{index}_{offset}.jpg"
-            // Updating logic to use simple filename parsing for robustness.
-            
-            // Re-saving with better name
-            let meaningfulFilename = String(format: "chunk_%04d_%d.jpg", index, offset)
-            let meaningfulURL = dir.appendingPathComponent(meaningfulFilename)
-            try data.write(to: meaningfulURL)
-            
-            print("Saved chunk: \(meaningfulFilename)")
+            print("Saved chunk: \(filename)")
         } catch {
             print("Error saving chunk: \(error)")
         }
