@@ -99,7 +99,6 @@
 				Shared/AppGroupConfig.swift,
 				Shared/ChunkManager.swift,
 				Shared/OpenCVWrapper.mm,
-				Shared/Test.m,
 			);
 			target = CDE361752F24980B0020E3EF /* ScreenCapture */;
 		};

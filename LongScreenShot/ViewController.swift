@@ -107,52 +107,41 @@ class ViewController: UIViewController {
     @objc private func generateLongScreenshot() {
         // Load chunks
         // ChunkManager loads (image, offset). We only care about images now.
-//        let chunksWithOffsets = ChunkManager.shared.loadAllChunks()
-//        let chunks = chunksWithOffsets.map { $0.image }
-//        
-//        guard !chunks.isEmpty else {
-//            statusLabel.text = "No chunks found. Did you record and scroll?"
-//            return
-//        }
-//        
-//        statusLabel.text = "Stitching \(chunks.count) frames (Deep Analysis)..."
+        let chunksWithOffsets = ChunkManager.shared.loadAllChunks()
+        let chunks = chunksWithOffsets.map { $0.image }
+        
+        guard !chunks.isEmpty else {
+            statusLabel.text = "No chunks found. Did you record and scroll?"
+            return
+        }
+        
+        statusLabel.text = "Stitching \(chunks.count) frames (Deep Analysis)..."
         
         // Run on background thread to avoid blocking UI
         DispatchQueue.global(qos: .userInitiated).async {
-            if let image1 = UIImage(named: "photo1.PNG"),
-               let image2 = UIImage(named: "photo2.PNG"),
-               let image3 = UIImage(named: "photo3.PNG"),
-               let image4 = UIImage(named: "photo4.PNG"),
-               let image5 = UIImage(named: "photo5.PNG"),
-               let image6 = UIImage(named: "photo6.PNG") {
-
+            //            if let image1 = UIImage(named: "photo1.PNG"),
+            //               let image2 = UIImage(named: "photo2.PNG"),
+            //               let image3 = UIImage(named: "photo3.PNG"),
+            //               let image4 = UIImage(named: "photo4.PNG"),
+            //               let image5 = UIImage(named: "photo5.PNG"),
+            //               let image6 = UIImage(named: "photo6.PNG") {
+            //
+            //            
+            //                let stitchedImage = ImageStitcher.stitch(images: [image1, image2,image3, image4, image5,image6])
+            let stitchedImage = ImageStitcher.stitch(images: chunks)
             
-                let stitchedImage = ImageStitcher.stitch(images: [image1, image2,image3, image4, image5,image6])
-                print("")
-                DispatchQueue.main.async {
-                    if let result = stitchedImage {
-                        self.imageView.image = result
-                        self.imageView.sizeToFit()
-                        self.scrollView.contentSize = self.imageView.frame.size
-                        self.saveButton.isEnabled = true
-                        self.statusLabel.text = "Stitched! Size: \(Int(result.size.width))x\(Int(result.size.height))"
-                    } else {
-                        self.statusLabel.text = "Stitching failed."
-                    }
+            print("")
+            DispatchQueue.main.async {
+                if let result = stitchedImage {
+                    self.imageView.image = result
+                    self.imageView.sizeToFit()
+                    self.scrollView.contentSize = self.imageView.frame.size
+                    self.saveButton.isEnabled = true
+                    self.statusLabel.text = "Stitched! Size: \(Int(result.size.width))x\(Int(result.size.height))"
+                } else {
+                    self.statusLabel.text = "Stitching failed."
                 }
             }
-            
-//            DispatchQueue.main.async {
-//                if let result = stitchedImage {
-//                    self.imageView.image = result
-//                    self.imageView.sizeToFit()
-//                    self.scrollView.contentSize = self.imageView.frame.size
-//                    self.saveButton.isEnabled = true
-//                    self.statusLabel.text = "Stitched! Size: \(Int(result.size.width))x\(Int(result.size.height))"
-//                } else {
-//                    self.statusLabel.text = "Stitching failed."
-//                }
-//            }
         }
     }
     

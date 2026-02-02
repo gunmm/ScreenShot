@@ -9,7 +9,7 @@ class SampleHandler: RPBroadcastSampleHandler {
     private var lastTimestamp: TimeInterval = 0
     private var chunkIndex = 0
     private var isRecording = false
-    private let throttleInterval: TimeInterval = 0.5
+    private let throttleInterval: TimeInterval = 0.2
     
     // Simple memory reuse for saving if needed, though we usually just create new UIImages
     private let context = CIContext()
@@ -43,24 +43,42 @@ class SampleHandler: RPBroadcastSampleHandler {
         
         // 1. Time Throttle
         if lastTimestamp != 0 && (timestamp - lastTimestamp) < throttleInterval {
-            print("---*** 时间短")
             return
         }
         
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         
-        // 2. Memory Lock & Deduplication
-        // Only compare if we have a last buffer
+        // 2. OpenCV-based Shift Detection
         if let lastBuffer = lastProcessedBuffer {
-            if isSameContent(buffer1: lastBuffer, buffer2: pixelBuffer) {
-                print("---*** 丢弃重复帧")
-                // Duplicate frame, skip
+            let result = OpenCVWrapper.compare(lastBuffer, with: pixelBuffer, staticThreshold: 5.0)
+            
+            if let dy = result["dy"] as? Double,
+               let confidence = result["confidence"] as? Double,
+               let meanDiff = result["meanDiff"] as? Double {
+                
+                // Logic:
+                // dy > 0: Content moved UP (Scrolled DOWN) - VALID
+                // dy <= 0: Content moved DOWN (Scrolled UP) or Static - INVALID
+                
+                // Thresholds:
+                // Shift must be significant (> 150 pixels) to avoid jitter and redundant small overlaps
+                // Confidence must be reasonable (> 0.2)
+                
+                if dy <= 50 || confidence < 0.15 {
+                    print("---*** 丢弃无效帧 (dy: \(String(format: "%.1f", dy)), conf: \(String(format: "%.2f", confidence)), diff: \(String(format: "%.2f", meanDiff))) - 非下滑或静止")
+                    return
+                }
+                
+                print("---*** 捕获有效下滑 (Shift: \(Int(dy))) , conf: \(String(format: "%.2f", confidence)), diff: \(String(format: "%.2f", meanDiff))")
+            } else {
+                // Comparison failed (no features matched or error)
+                // If confidence is low, safe to skip to avoid bad stitches
+                print("---*** 丢弃帧 (对比失败)")
                 return
             }
         }
         
         // 3. Save Full Frame
-        // We need to convert CVPixelBuffer to UIImage to save it (via ChunkManager)
         if let image = convertToUIImage(buffer: pixelBuffer) {
             print("---*** 保存 chunkIndex：\(chunkIndex)")
             ChunkManager.shared.saveChunk(image: image, index: chunkIndex)
@@ -70,96 +88,6 @@ class SampleHandler: RPBroadcastSampleHandler {
             lastProcessedBuffer = deepCopy(buffer: pixelBuffer)
             lastTimestamp = timestamp
         }
-    }
-    
-    // Efficient Sparse Sampling Comparison
-    // Checks 9 blocks (3 rows x 3 columns) to quickly determine if frames are identical.
-    private func isSameContent(buffer1: CVPixelBuffer, buffer2: CVPixelBuffer) -> Bool {
-        CVPixelBufferLockBaseAddress(buffer1, .readOnly)
-        CVPixelBufferLockBaseAddress(buffer2, .readOnly)
-        
-        defer {
-            CVPixelBufferUnlockBaseAddress(buffer1, .readOnly)
-            CVPixelBufferUnlockBaseAddress(buffer2, .readOnly)
-        }
-        
-        let width = CVPixelBufferGetWidth(buffer1)
-        let height = CVPixelBufferGetHeight(buffer1)
-        
-        guard width == CVPixelBufferGetWidth(buffer2), height == CVPixelBufferGetHeight(buffer2) else {
-            return false
-        }
-        
-        // Configuration
-        let sampleSize = 36 // Compare 36 bytes per block
-        
-        // Vertical positions: 20%, 50%, 80%
-        let yPositions = [
-            Int(Double(height) * 0.2),
-            Int(Double(height) * 0.5),
-            Int(Double(height) * 0.8)
-        ]
-        
-        // Horizontal positions: 10%, 50%, 90%
-        // We ensure we don't go out of bounds.
-        let leftX = max(0, Int(Double(width) * 0.1))
-        let centerX = max(0, (width - sampleSize) / 2)
-        let rightX = max(0, Int(Double(width) * 0.9) - sampleSize)
-        
-        let xPositions = [leftX, centerX, rightX]
-        
-        // Get Base Addresses
-        var base1: UnsafeMutableRawPointer?
-        var base2: UnsafeMutableRawPointer?
-        var bytesPerRow1 = 0
-        var bytesPerRow2 = 0
-        
-        if CVPixelBufferGetPlaneCount(buffer1) > 0 {
-            // Planar YUV - Use Plane 0 (Luma)
-            base1 = CVPixelBufferGetBaseAddressOfPlane(buffer1, 0)
-            base2 = CVPixelBufferGetBaseAddressOfPlane(buffer2, 0)
-            bytesPerRow1 = CVPixelBufferGetBytesPerRowOfPlane(buffer1, 0)
-            bytesPerRow2 = CVPixelBufferGetBytesPerRowOfPlane(buffer2, 0)
-        } else {
-            // BGRA
-            base1 = CVPixelBufferGetBaseAddress(buffer1)
-            base2 = CVPixelBufferGetBaseAddress(buffer2)
-            bytesPerRow1 = CVPixelBufferGetBytesPerRow(buffer1)
-            bytesPerRow2 = CVPixelBufferGetBytesPerRow(buffer2)
-        }
-        
-        guard let b1 = base1, let b2 = base2 else { return false }
-        
-        // Perform 9 checks
-        for y in yPositions {
-            // Calculate row start address
-            let row1 = b1.advanced(by: y * bytesPerRow1)
-            let row2 = b2.advanced(by: y * bytesPerRow2)
-            
-            for x in xPositions {
-                // In YUV (1 byte/pixel) x is byte offset.
-                // In BGRA (4 bytes/pixel) x should be x*4.
-                // To keep it simple and logic generic, let's treat Luma as 1 byte check
-                // and BGRA as 4 byte check?
-                // Actually, user said 36 pixels. In BGRA that's 36*4 bytes.
-                // But for deduplication, checking 36 bytes (even if it's just 9 pixels in BGRA) is usually enough entropy.
-                // Let's stick to comparing 'sampleSize' BYTES at offset 'x * bytesPerPixel'.
-                
-                // Determine Bytes Per Pixel
-                let bpp = CVPixelBufferGetPlaneCount(buffer1) > 0 ? 1 : 4
-                let byteOffset = x * bpp
-                
-                // Compare memory
-                let p1 = row1.advanced(by: byteOffset)
-                let p2 = row2.advanced(by: byteOffset)
-                
-                if memcmp(p1, p2, sampleSize) != 0 {
-                    return false
-                }
-            }
-        }
-        
-        return true
     }
     
     private func convertToUIImage(buffer: CVPixelBuffer) -> UIImage? {
