@@ -9,9 +9,10 @@ class ViewController: UIViewController {
     private let imageView = UIImageView()
     private let stitchButton = UIButton(type: .system)
     private let previewButton = UIButton(type: .system) // New button
-    private let calcOverlapButton = UIButton(type: .system) // New debug button
     private let saveButton = UIButton(type: .system)
     private let statusLabel = UILabel()
+    private let activityIndicator = UIActivityIndicatorView(style: .large)
+    private var imageAspectRatioConstraint: NSLayoutConstraint?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,11 +40,6 @@ class ViewController: UIViewController {
         previewButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(previewButton)
         
-        // 2.2 Calculate Overlap Button (Debug)
-        calcOverlapButton.setTitle("Debug: Calc Overlap Logs", for: .normal)
-        calcOverlapButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(calcOverlapButton)
-
         
         // 3. Save Button
         saveButton.setTitle("Save to Photos", for: .normal)
@@ -67,6 +63,12 @@ class ViewController: UIViewController {
         scrollView.addSubview(imageView)
         view.addSubview(scrollView)
         
+        // 6. Activity Indicator
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.color = .gray
+        view.addSubview(activityIndicator)
+        
         NSLayoutConstraint.activate([
             broadcastPicker.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             broadcastPicker.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -78,13 +80,9 @@ class ViewController: UIViewController {
             
             previewButton.topAnchor.constraint(equalTo: stitchButton.bottomAnchor, constant: 10),
             previewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
             
-            previewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            calcOverlapButton.topAnchor.constraint(equalTo: previewButton.bottomAnchor, constant: 10),
-            calcOverlapButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            statusLabel.topAnchor.constraint(equalTo: calcOverlapButton.bottomAnchor, constant: 8),
+            statusLabel.topAnchor.constraint(equalTo: previewButton.bottomAnchor, constant: 12),
             statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
@@ -100,7 +98,10 @@ class ViewController: UIViewController {
             imageView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
             imageView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            imageView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor)
+            imageView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
+            
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
     
@@ -117,30 +118,40 @@ class ViewController: UIViewController {
         
         statusLabel.text = "Stitching \(chunks.count) frames (Deep Analysis)..."
         
+        // Start loading
+        activityIndicator.startAnimating()
+        stitchButton.isEnabled = false
+        view.isUserInteractionEnabled = false // Optional: block other interactions
+        
         // Run on background thread to avoid blocking UI
         DispatchQueue.global(qos: .userInitiated).async {
-            //            if let image1 = UIImage(named: "photo1.PNG"),
-            //               let image2 = UIImage(named: "photo2.PNG"),
-            //               let image3 = UIImage(named: "photo3.PNG"),
-            //               let image4 = UIImage(named: "photo4.PNG"),
-            //               let image5 = UIImage(named: "photo5.PNG"),
-            //               let image6 = UIImage(named: "photo6.PNG") {
-            //
-            //            
-            //                let stitchedImage = ImageStitcher.stitch(images: [image1, image2,image3, image4, image5,image6])
             let stitchedImage = ImageStitcher.stitch(images: chunks)
             
             print("")
             DispatchQueue.main.async {
                 if let result = stitchedImage {
                     self.imageView.image = result
-                    self.imageView.sizeToFit()
-                    self.scrollView.contentSize = self.imageView.frame.size
+                    
+                    // Update aspect ratio constraint
+                    if let existingConstraint = self.imageAspectRatioConstraint {
+                        existingConstraint.isActive = false
+                    }
+                    if result.size.width > 0 {
+                        let ratio = result.size.height / result.size.width
+                        self.imageAspectRatioConstraint = self.imageView.heightAnchor.constraint(equalTo: self.imageView.widthAnchor, multiplier: ratio)
+                        self.imageAspectRatioConstraint?.isActive = true
+                    }
+                    
                     self.saveButton.isEnabled = true
                     self.statusLabel.text = "Stitched! Size: \(Int(result.size.width))x\(Int(result.size.height))"
                 } else {
                     self.statusLabel.text = "Stitching failed."
                 }
+                
+                // Stop loading
+                self.activityIndicator.stopAnimating()
+                self.stitchButton.isEnabled = true
+                self.view.isUserInteractionEnabled = true
             }
         }
     }
