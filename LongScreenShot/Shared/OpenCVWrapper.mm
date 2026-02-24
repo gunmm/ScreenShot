@@ -125,6 +125,17 @@
             }
         }
     }
+
+    // Reject impossible direction for "scroll-down to stitch":
+    // shift = Y1 - Y2 should be positive when Img1 bottom overlaps Img2 top.
+    // A strong but negative shift is almost always a false match cluster.
+    if (orbSuccess && bestShift <= 0.0) {
+        printf("OpenCV: ORB produced non-positive shift (%.2f). Forcing fallback.\n", bestShift);
+        orbSuccess = false;
+        confidence = 0.0;
+        bestShift = 0.0;
+        bestMinMatchY2 = 0.0;
+    }
     
     // --- FALLBACK: TEMPLATE MATCHING ---
     if (!orbSuccess) {
@@ -152,6 +163,11 @@
                  double matchGlobalY2 = roi2_y + maxLoc.y;
                  double shift = tplGlobalY1 - matchGlobalY2;
                  
+                 // Same direction sanity check: for normal stitching, shift should be positive.
+                 if (shift <= 0.0) {
+                     // Ignore this template match candidate.
+                 } else {
+                 
                  // Fix for MinMatchY2 (Cut Point in Img2):
                  // The cut point should be where the match IS in Img2.
                  // This ensures we switch from Img1 to Img2 at the matched feature.
@@ -174,6 +190,7 @@
                  bestShift = shift;
                  confidence = maxVal;
                  bestMinMatchY2 = calculatedMinMatchY2;
+                 }
              }
         }
     }
