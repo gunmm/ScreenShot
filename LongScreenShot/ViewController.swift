@@ -9,6 +9,7 @@ class ViewController: UIViewController {
     private let imageView = UIImageView()
     private let stitchButton = UIButton(type: .system)
     private let previewButton = UIButton(type: .system) // New button
+    private let editButton = UIButton(type: .system) // Edit button
     private let saveButton = UIButton(type: .system)
     private let shareButton = UIButton(type: .system)
     private let statusLabel = UILabel()
@@ -22,8 +23,20 @@ class ViewController: UIViewController {
     private enum UIState: Equatable {
         case idle
         case generating(frameCount: Int)
-        case generated(size: CGSize)
+        case generated(size: CGSize, images: [UIImage], ranges: [(start: Int, end: Int)])
         case failed(message: String)
+        
+        static func == (lhs: UIState, rhs: UIState) -> Bool {
+            switch (lhs, rhs) {
+            case (.idle, .idle): return true
+            case (.generating(let l), .generating(let r)): return l == r
+            case (.generated(let lSize, _, _), .generated(let rSize, _, _)): 
+                // For UI state tracking, comparing the size and that it is 'generated' is sufficient.
+                return lSize == rSize 
+            case (.failed(let lMsg), .failed(let rMsg)): return lMsg == rMsg
+            default: return false
+            }
+        }
     }
     
     private var state: UIState = .idle {
@@ -71,7 +84,11 @@ class ViewController: UIViewController {
         guideLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(guideLabel)
                 
-        // 4. Share / Save Buttons
+        // 4. Edit / Share / Save Buttons
+        editButton.setTitle("Edit / 编辑", for: .normal)
+        editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
+        editButton.isEnabled = false
+        
         shareButton.setTitle("Share / 分享", for: .normal)
         shareButton.addTarget(self, action: #selector(shareResult), for: .touchUpInside)
         shareButton.isEnabled = false
@@ -80,6 +97,7 @@ class ViewController: UIViewController {
         saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
         saveButton.isEnabled = false
         
+        editButton.translatesAutoresizingMaskIntoConstraints = false
         shareButton.translatesAutoresizingMaskIntoConstraints = false
         saveButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -87,6 +105,7 @@ class ViewController: UIViewController {
         actionsStack.spacing = 12
         actionsStack.distribution = .fillEqually
         actionsStack.translatesAutoresizingMaskIntoConstraints = false
+        actionsStack.addArrangedSubview(editButton)
         actionsStack.addArrangedSubview(shareButton)
         actionsStack.addArrangedSubview(saveButton)
         view.addSubview(actionsStack)
@@ -161,6 +180,7 @@ class ViewController: UIViewController {
             activityIndicator.stopAnimating()
             stitchButton.isEnabled = true
             previewButton.isEnabled = true
+            editButton.isEnabled = false
             shareButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
@@ -171,16 +191,18 @@ class ViewController: UIViewController {
             activityIndicator.startAnimating()
             stitchButton.isEnabled = false
             previewButton.isEnabled = false
+            editButton.isEnabled = false
             shareButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = false
             statusLabel.textColor = .label
             statusLabel.text = "正在拼接 \(frameCount) 帧…"
             
-        case .generated(let size):
+        case .generated(let size, _, _):
             activityIndicator.stopAnimating()
             stitchButton.isEnabled = true
             previewButton.isEnabled = true
+            editButton.isEnabled = (imageView.image != nil)
             shareButton.isEnabled = (imageView.image != nil)
             saveButton.isEnabled = (imageView.image != nil)
             view.isUserInteractionEnabled = true
@@ -191,6 +213,7 @@ class ViewController: UIViewController {
             activityIndicator.stopAnimating()
             stitchButton.isEnabled = true
             previewButton.isEnabled = true
+            editButton.isEnabled = false
             shareButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
@@ -246,12 +269,13 @@ class ViewController: UIViewController {
         
         // Run on background thread to avoid blocking UI
         DispatchQueue.global(qos: .userInitiated).async {
-            let stitchedImage = ImageStitcher.stitch(images: chunks)
+            let ranges = ImageStitcher.calculateValidRanges(for: chunks)
+            let stitchedImage = ImageStitcher.stitch(images: chunks, withRanges: ranges)
             
             DispatchQueue.main.async {
                 if let result = stitchedImage {
                     self.display(image: result)
-                    self.state = .generated(size: result.size)
+                    self.state = .generated(size: result.size, images: chunks, ranges: ranges)
                 } else {
                     self.state = .failed(message: """
                     拼接失败。
@@ -260,6 +284,36 @@ class ViewController: UIViewController {
                     - 避免大面积动态内容（视频/强动画）
                     - 点 Debug 预览分片确认内容是否连续
                     """)
+                }
+            }
+        }
+    }
+    
+    @objc private func editResult() {
+        guard case let .generated(_, images, ranges) = state else { return }
+        
+        let editVC = EditViewController(images: images, initialRanges: ranges)
+        editVC.onConfirm = { [weak self] newRanges in
+            self?.applyNewRanges(newRanges, to: images)
+        }
+        
+        let nav = UINavigationController(rootViewController: editVC)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+    
+    private func applyNewRanges(_ newRanges: [(start: Int, end: Int)], to images: [UIImage]) {
+        state = .generating(frameCount: images.count)
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            let stitchedImage = ImageStitcher.stitch(images: images, withRanges: newRanges)
+            
+            DispatchQueue.main.async {
+                if let result = stitchedImage {
+                    self.display(image: result)
+                    self.state = .generated(size: result.size, images: images, ranges: newRanges)
+                } else {
+                    self.state = .failed(message: "根据新裁剪参数拼接失败。")
                 }
             }
         }
