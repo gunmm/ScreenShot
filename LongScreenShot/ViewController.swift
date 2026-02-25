@@ -74,8 +74,8 @@ class ViewController: UIViewController {
         guideLabel.text = """
         录制步骤：
         1) 点上方“录制”开始
-        2) 去目标 App 连续向下滚动 10–30 秒
-        3) 回来点 Generate 生成长截图，然后分享/保存
+        2) 去目标 App 连续向下滚动
+        3) 回来点 Generate 生成长截图
         """
         guideLabel.textAlignment = .left
         guideLabel.font = .systemFont(ofSize: 13)
