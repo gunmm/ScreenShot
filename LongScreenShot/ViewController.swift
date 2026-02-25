@@ -85,15 +85,15 @@ class ViewController: UIViewController {
         view.addSubview(guideLabel)
                 
         // 4. Edit / Share / Save Buttons
-        editButton.setTitle("Edit / 编辑", for: .normal)
+        editButton.setTitle("Edit", for: .normal)
         editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
         editButton.isEnabled = false
         
-        shareButton.setTitle("Share / 分享", for: .normal)
+        shareButton.setTitle("Share", for: .normal)
         shareButton.addTarget(self, action: #selector(shareResult), for: .touchUpInside)
         shareButton.isEnabled = false
         
-        saveButton.setTitle("Save / 保存", for: .normal)
+        saveButton.setTitle("Save", for: .normal)
         saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
         saveButton.isEnabled = false
         
@@ -106,8 +106,8 @@ class ViewController: UIViewController {
         actionsStack.distribution = .fillEqually
         actionsStack.translatesAutoresizingMaskIntoConstraints = false
         actionsStack.addArrangedSubview(editButton)
-        actionsStack.addArrangedSubview(shareButton)
         actionsStack.addArrangedSubview(saveButton)
+        actionsStack.addArrangedSubview(shareButton)
         view.addSubview(actionsStack)
         
         // 5. Status Label
@@ -185,7 +185,7 @@ class ViewController: UIViewController {
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
-            statusLabel.text = "准备就绪。请先开始录制，然后滚动内容。"
+            statusLabel.text = "Ready. Please start capturing first, then begin scrolling your content."
             
         case .generating(let frameCount):
             activityIndicator.startAnimating()
@@ -196,7 +196,7 @@ class ViewController: UIViewController {
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = false
             statusLabel.textColor = .label
-            statusLabel.text = "正在拼接 \(frameCount) 帧…"
+            statusLabel.text = "Stitching \(frameCount) frames..."
             
         case .generated(let size, _, _):
             activityIndicator.stopAnimating()
@@ -207,7 +207,7 @@ class ViewController: UIViewController {
             saveButton.isEnabled = (imageView.image != nil)
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
-            statusLabel.text = "生成完成：\(Int(size.width))×\(Int(size.height))。可分享或保存到相册。"
+            statusLabel.text = "Generated: \(Int(size.width))×\(Int(size.height)). You can now share or save it."
             
         case .failed(let message):
             activityIndicator.stopAnimating()
@@ -218,7 +218,7 @@ class ViewController: UIViewController {
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .systemRed
-            statusLabel.text = message + "\n\n（点这里预览分片）"
+            statusLabel.text = message + "\n\n(Tap here to preview chunks)"
         }
     }
     

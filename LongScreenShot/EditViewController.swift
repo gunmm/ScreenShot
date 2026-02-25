@@ -157,7 +157,7 @@ class ChunkContainer: UIView {
             
             // Add a subtle border to the selected chunk container
             layer.borderWidth = isSelected ? 2.0 : 0.0
-            layer.borderColor = isSelected ? UIColor.systemYellow.cgColor : nil
+            layer.borderColor = isSelected ? UIColor.systemYellow.withAlphaComponent(0.3).cgColor : nil
         }
     }
     
@@ -230,13 +230,13 @@ class ChunkContainer: UIView {
             imageViewHeightConstraint,
             
             topHandle.topAnchor.constraint(equalTo: topAnchor),
-            topHandle.leadingAnchor.constraint(equalTo: leadingAnchor),
-            topHandle.trailingAnchor.constraint(equalTo: trailingAnchor),
+            topHandle.centerXAnchor.constraint(equalTo: centerXAnchor),
+            topHandle.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.2),
             topHandle.heightAnchor.constraint(equalToConstant: 20),
             
             bottomHandle.bottomAnchor.constraint(equalTo: bottomAnchor),
-            bottomHandle.leadingAnchor.constraint(equalTo: leadingAnchor),
-            bottomHandle.trailingAnchor.constraint(equalTo: trailingAnchor),
+            bottomHandle.centerXAnchor.constraint(equalTo: centerXAnchor),
+            bottomHandle.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.2),
             bottomHandle.heightAnchor.constraint(equalToConstant: 20)
         ])
     }
