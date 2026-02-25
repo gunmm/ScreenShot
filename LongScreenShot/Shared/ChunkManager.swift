@@ -11,6 +11,16 @@ class ChunkManager {
     static let shared = ChunkManager()
     
     private init() {}
+
+    func chunkCount() -> Int {
+        guard let dir = AppGroupConfig.chunkDirectoryURL else { return 0 }
+        do {
+            let fileURLs = try FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
+            return fileURLs.count { $0.pathExtension.lowercased() == "jpg" }
+        } catch {
+            return 0
+        }
+    }
     
     func saveChunk(image: UIImage, index: Int) {
         guard let data = image.jpegData(compressionQuality: 0.8) else { return }

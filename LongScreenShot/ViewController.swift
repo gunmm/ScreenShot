@@ -10,13 +10,30 @@ class ViewController: UIViewController {
     private let stitchButton = UIButton(type: .system)
     private let previewButton = UIButton(type: .system) // New button
     private let saveButton = UIButton(type: .system)
+    private let shareButton = UIButton(type: .system)
     private let statusLabel = UILabel()
+    private let guideLabel = UILabel()
+    
+    private let actionsStack = UIStackView()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
     private var imageAspectRatioConstraint: NSLayoutConstraint?
+    private lazy var statusTapGesture = UITapGestureRecognizer(target: self, action: #selector(showPreview))
+    
+    private enum UIState: Equatable {
+        case idle
+        case generating(frameCount: Int)
+        case generated(size: CGSize)
+        case failed(message: String)
+    }
+    
+    private var state: UIState = .idle {
+        didSet { render(state: state) }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        state = .idle
     }
 
     private func setupUI() {
@@ -40,30 +57,58 @@ class ViewController: UIViewController {
         previewButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(previewButton)
         
+        // 3. Guide Label
+        guideLabel.text = """
+        录制步骤：
+        1) 点上方“录制”开始
+        2) 去目标 App 连续向下滚动 10–30 秒
+        3) 回来点 Generate 生成长截图，然后分享/保存
+        """
+        guideLabel.textAlignment = .left
+        guideLabel.font = .systemFont(ofSize: 13)
+        guideLabel.textColor = .secondaryLabel
+        guideLabel.numberOfLines = 0
+        guideLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(guideLabel)
+                
+        // 4. Share / Save Buttons
+        shareButton.setTitle("Share / 分享", for: .normal)
+        shareButton.addTarget(self, action: #selector(shareResult), for: .touchUpInside)
+        shareButton.isEnabled = false
         
-        // 3. Save Button
-        saveButton.setTitle("Save to Photos", for: .normal)
+        saveButton.setTitle("Save / 保存", for: .normal)
         saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
-        saveButton.translatesAutoresizingMaskIntoConstraints = false
         saveButton.isEnabled = false
-        view.addSubview(saveButton)
         
-        // 4. Status Label
-        statusLabel.text = "Ready. Tap Record to start."
+        shareButton.translatesAutoresizingMaskIntoConstraints = false
+        saveButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        actionsStack.axis = .horizontal
+        actionsStack.spacing = 12
+        actionsStack.distribution = .fillEqually
+        actionsStack.translatesAutoresizingMaskIntoConstraints = false
+        actionsStack.addArrangedSubview(shareButton)
+        actionsStack.addArrangedSubview(saveButton)
+        view.addSubview(actionsStack)
+        
+        // 5. Status Label
+        statusLabel.text = "准备就绪。请先开始录制，然后滚动内容。"
         statusLabel.textAlignment = .center
         statusLabel.font = .systemFont(ofSize: 12)
         statusLabel.numberOfLines = 0
+        statusLabel.isUserInteractionEnabled = true
+        statusLabel.addGestureRecognizer(statusTapGesture)
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(statusLabel)
         
-        // 5. ScrollView & ImageView
+        // 6. ScrollView & ImageView
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
         scrollView.addSubview(imageView)
         view.addSubview(scrollView)
         
-        // 6. Activity Indicator
+        // 7. Activity Indicator
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.hidesWhenStopped = true
         activityIndicator.color = .gray
@@ -80,19 +125,24 @@ class ViewController: UIViewController {
             
             previewButton.topAnchor.constraint(equalTo: stitchButton.bottomAnchor, constant: 10),
             previewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
             
-            statusLabel.topAnchor.constraint(equalTo: previewButton.bottomAnchor, constant: 12),
+            guideLabel.topAnchor.constraint(equalTo: previewButton.bottomAnchor, constant: 12),
+            guideLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            guideLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            statusLabel.topAnchor.constraint(equalTo: guideLabel.bottomAnchor, constant: 12),
             statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             statusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            actionsStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            actionsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            actionsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            actionsStack.heightAnchor.constraint(equalToConstant: 44),
             
             scrollView.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 20),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -20),
+            scrollView.bottomAnchor.constraint(equalTo: actionsStack.topAnchor, constant: -12),
             
             imageView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
             imageView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
@@ -105,55 +155,125 @@ class ViewController: UIViewController {
         ])
     }
     
+    private func render(state: UIState) {
+        switch state {
+        case .idle:
+            activityIndicator.stopAnimating()
+            stitchButton.isEnabled = true
+            previewButton.isEnabled = true
+            shareButton.isEnabled = false
+            saveButton.isEnabled = false
+            view.isUserInteractionEnabled = true
+            statusLabel.textColor = .label
+            statusLabel.text = "准备就绪。请先开始录制，然后滚动内容。"
+            
+        case .generating(let frameCount):
+            activityIndicator.startAnimating()
+            stitchButton.isEnabled = false
+            previewButton.isEnabled = false
+            shareButton.isEnabled = false
+            saveButton.isEnabled = false
+            view.isUserInteractionEnabled = false
+            statusLabel.textColor = .label
+            statusLabel.text = "正在拼接 \(frameCount) 帧…"
+            
+        case .generated(let size):
+            activityIndicator.stopAnimating()
+            stitchButton.isEnabled = true
+            previewButton.isEnabled = true
+            shareButton.isEnabled = (imageView.image != nil)
+            saveButton.isEnabled = (imageView.image != nil)
+            view.isUserInteractionEnabled = true
+            statusLabel.textColor = .label
+            statusLabel.text = "生成完成：\(Int(size.width))×\(Int(size.height))。可分享或保存到相册。"
+            
+        case .failed(let message):
+            activityIndicator.stopAnimating()
+            stitchButton.isEnabled = true
+            previewButton.isEnabled = true
+            shareButton.isEnabled = false
+            saveButton.isEnabled = false
+            view.isUserInteractionEnabled = true
+            statusLabel.textColor = .systemRed
+            statusLabel.text = message + "\n\n（点这里预览分片）"
+        }
+    }
+    
+    private func display(image: UIImage?) {
+        imageView.image = image
+        
+        if let existingConstraint = imageAspectRatioConstraint {
+            existingConstraint.isActive = false
+        }
+        if let image, image.size.width > 0 {
+            let ratio = image.size.height / image.size.width
+            imageAspectRatioConstraint = imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: ratio)
+            imageAspectRatioConstraint?.isActive = true
+        }
+    }
+    
     @objc private func generateLongScreenshot() {
-        // Load chunks
-        // ChunkManager loads (image, offset). We only care about images now.
+        // Quick pre-check (avoid loading all images if empty)
+        let count = ChunkManager.shared.chunkCount()
+        guard count >= 2 else {
+            state = .failed(message: """
+            没有录到足够的分片（至少需要 2 张）。
+            建议：
+            - 先点击上方录制开始
+            - 去目标 App 连续向下滚动 10–30 秒
+            - 回来再点 Generate
+            """)
+            return
+        }
+        
+        // Load chunks (images only)
         let chunksWithOffsets = ChunkManager.shared.loadAllChunks()
         let chunks = chunksWithOffsets.map { $0.image }
         
         guard !chunks.isEmpty else {
-            statusLabel.text = "No chunks found. Did you record and scroll?"
+            state = .failed(message: """
+            没有找到录制分片。
+            建议：
+            - 确认已开始录制
+            - 滚动要更连续、避免停顿太久
+            - 需要时点 Debug 预览分片确认是否写入成功
+            """)
             return
         }
         
-        statusLabel.text = "Stitching \(chunks.count) frames (Deep Analysis)..."
-        
-        // Start loading
-        activityIndicator.startAnimating()
-        stitchButton.isEnabled = false
-        view.isUserInteractionEnabled = false // Optional: block other interactions
+        display(image: nil)
+        state = .generating(frameCount: chunks.count)
         
         // Run on background thread to avoid blocking UI
         DispatchQueue.global(qos: .userInitiated).async {
             let stitchedImage = ImageStitcher.stitch(images: chunks)
             
-            print("")
             DispatchQueue.main.async {
                 if let result = stitchedImage {
-                    self.imageView.image = result
-                    
-                    // Update aspect ratio constraint
-                    if let existingConstraint = self.imageAspectRatioConstraint {
-                        existingConstraint.isActive = false
-                    }
-                    if result.size.width > 0 {
-                        let ratio = result.size.height / result.size.width
-                        self.imageAspectRatioConstraint = self.imageView.heightAnchor.constraint(equalTo: self.imageView.widthAnchor, multiplier: ratio)
-                        self.imageAspectRatioConstraint?.isActive = true
-                    }
-                    
-                    self.saveButton.isEnabled = true
-                    self.statusLabel.text = "Stitched! Size: \(Int(result.size.width))x\(Int(result.size.height))"
+                    self.display(image: result)
+                    self.state = .generated(size: result.size)
                 } else {
-                    self.statusLabel.text = "Stitching failed."
+                    self.state = .failed(message: """
+                    拼接失败。
+                    建议：
+                    - 滚动更慢、更连续
+                    - 避免大面积动态内容（视频/强动画）
+                    - 点 Debug 预览分片确认内容是否连续
+                    """)
                 }
-                
-                // Stop loading
-                self.activityIndicator.stopAnimating()
-                self.stitchButton.isEnabled = true
-                self.view.isUserInteractionEnabled = true
             }
         }
+    }
+    
+    @objc private func shareResult() {
+        guard let image = imageView.image else { return }
+        
+        let vc = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+        if let popover = vc.popoverPresentationController {
+            popover.sourceView = shareButton
+            popover.sourceRect = shareButton.bounds
+        }
+        present(vc, animated: true)
     }
     
     @objc private func saveToPhotos() {
@@ -164,7 +284,8 @@ class ViewController: UIViewController {
                 UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
             } else {
                 DispatchQueue.main.async {
-                    self.statusLabel.text = "Permission denied."
+                    self.state = .failed(message: "相册权限被拒绝。可在系统设置中开启“照片-添加”。")
+                    self.presentPhotoPermissionAlert()
                 }
             }
         }
@@ -188,5 +309,19 @@ class ViewController: UIViewController {
         let vc = ChunksPreviewViewController()
         let nav = UINavigationController(rootViewController: vc)
         present(nav, animated: true, completion: nil)
+    }
+    
+    private func presentPhotoPermissionAlert() {
+        let alert = UIAlertController(
+            title: "需要照片权限",
+            message: "用于将生成的长截图保存到相册。你也可以直接使用 Share 分享，不必授权相册。",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.addAction(UIAlertAction(title: "去设置", style: .default, handler: { _ in
+            guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+            UIApplication.shared.open(url)
+        }))
+        present(alert, animated: true)
     }
 }
