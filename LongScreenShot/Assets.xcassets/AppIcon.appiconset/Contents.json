@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "截长图.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "截长图 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -23,6 +25,7 @@
           "value" : "tinted"
         }
       ],
+      "filename" : "截长图 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
