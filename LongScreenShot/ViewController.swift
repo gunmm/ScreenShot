@@ -58,7 +58,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         view.addSubview(broadcastPicker)
         
         // 2. Stitch Button
-        stitchButton.setTitle("Generate Long Screenshot", for: .normal)
+        stitchButton.setTitle("生成结果图", for: .normal)
         stitchButton.addTarget(self, action: #selector(generateLongScreenshot), for: .touchUpInside)
         stitchButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stitchButton)
@@ -84,11 +84,11 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         view.addSubview(guideLabel)
                 
         // 4. Edit / Save Buttons
-        editButton.setTitle("Edit", for: .normal)
+        editButton.setTitle("编辑", for: .normal)
         editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
         editButton.isEnabled = false
         
-        saveButton.setTitle("Save", for: .normal)
+        saveButton.setTitle("保存", for: .normal)
         saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
         saveButton.isEnabled = false
         
