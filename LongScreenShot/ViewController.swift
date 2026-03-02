@@ -11,7 +11,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     private let previewButton = UIButton(type: .system) // New button
     private let editButton = UIButton(type: .system) // Edit button
     private let saveButton = UIButton(type: .system)
-    private let shareButton = UIButton(type: .system)
     private let statusLabel = UILabel()
     private let guideLabel = UILabel()
     
@@ -84,21 +83,16 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         guideLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(guideLabel)
                 
-        // 4. Edit / Share / Save Buttons
+        // 4. Edit / Save Buttons
         editButton.setTitle("Edit", for: .normal)
         editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
         editButton.isEnabled = false
-        
-        shareButton.setTitle("Share", for: .normal)
-        shareButton.addTarget(self, action: #selector(shareResult), for: .touchUpInside)
-        shareButton.isEnabled = false
         
         saveButton.setTitle("Save", for: .normal)
         saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
         saveButton.isEnabled = false
         
         editButton.translatesAutoresizingMaskIntoConstraints = false
-        shareButton.translatesAutoresizingMaskIntoConstraints = false
         saveButton.translatesAutoresizingMaskIntoConstraints = false
         
         actionsStack.axis = .horizontal
@@ -107,7 +101,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         actionsStack.translatesAutoresizingMaskIntoConstraints = false
         actionsStack.addArrangedSubview(editButton)
         actionsStack.addArrangedSubview(saveButton)
-        actionsStack.addArrangedSubview(shareButton)
         view.addSubview(actionsStack)
         
         // 5. Status Label
@@ -184,7 +177,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             stitchButton.isEnabled = true
             previewButton.isEnabled = true
             editButton.isEnabled = false
-            shareButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
@@ -195,7 +187,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             stitchButton.isEnabled = false
             previewButton.isEnabled = false
             editButton.isEnabled = false
-            shareButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = false
             statusLabel.textColor = .label
@@ -206,18 +197,16 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             stitchButton.isEnabled = true
             previewButton.isEnabled = true
             editButton.isEnabled = (imageView.image != nil)
-            shareButton.isEnabled = (imageView.image != nil)
             saveButton.isEnabled = (imageView.image != nil)
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
-            statusLabel.text = "Generated: \(Int(size.width))×\(Int(size.height)). You can now share or save it."
+            statusLabel.text = "Generated: \(Int(size.width))×\(Int(size.height)). You can now save it."
             
         case .failed(let message):
             activityIndicator.stopAnimating()
             stitchButton.isEnabled = true
             previewButton.isEnabled = true
             editButton.isEnabled = false
-            shareButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .systemRed
@@ -322,17 +311,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    @objc private func shareResult() {
-        guard let image = imageView.image else { return }
-        
-        let vc = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-        if let popover = vc.popoverPresentationController {
-            popover.sourceView = shareButton
-            popover.sourceRect = shareButton.bounds
-        }
-        present(vc, animated: true)
-    }
-    
     @objc private func saveToPhotos() {
         guard let image = imageView.image else { return }
         
@@ -371,7 +349,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     private func presentPhotoPermissionAlert() {
         let alert = UIAlertController(
             title: "需要照片权限",
-            message: "用于将生成的长截图保存到相册。你也可以直接使用 Share 分享，不必授权相册。",
+            message: "用于将生成的长截图保存到相册。",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "取消", style: .cancel))
