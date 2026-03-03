@@ -15,6 +15,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 #endif
     private let editButton = UIButton(type: .system) // Edit button
     private let saveButton = UIButton(type: .system)
+    private let settingsButton = UIButton(type: .system) // Settings button
     private let statusLabel = UILabel()
     private let guideLabel = UILabel()
     
@@ -126,7 +127,10 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         guideLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(guideLabel)
                 
-        // 4. Edit / Save Buttons
+        // 4. Settings / Edit / Save Buttons
+        settingsButton.setTitle("设置", for: .normal)
+        settingsButton.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
+        
         editButton.setTitle("编辑", for: .normal)
         editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
         editButton.isEnabled = false
@@ -135,6 +139,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
         saveButton.isEnabled = false
         
+        settingsButton.translatesAutoresizingMaskIntoConstraints = false
         editButton.translatesAutoresizingMaskIntoConstraints = false
         saveButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -144,6 +149,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         actionsStack.translatesAutoresizingMaskIntoConstraints = false
         actionsStack.addArrangedSubview(editButton)
         actionsStack.addArrangedSubview(saveButton)
+        actionsStack.addArrangedSubview(settingsButton)
         view.addSubview(actionsStack)
         
         // 5. Status Label
@@ -358,6 +364,12 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    @objc private func openSettings() {
+        let settingsVC = SettingsViewController()
+        let nav = UINavigationController(rootViewController: settingsVC)
+        present(nav, animated: true)
+    }
+    
     @objc private func editResult() {
         guard case let .generated(_, images, ranges) = state else { return }
         
@@ -391,6 +403,25 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     @objc private func saveToPhotos() {
         guard let image = imageView.image else { return }
         
+        let statusManager = PurchaseStatusManager.shared
+//        statusManager.setPurchased(false)
+        let isPurchased = statusManager.isPurchased()
+        let isTrialExpired = statusManager.isTrialExpired()
+        
+        if isTrialExpired && !isPurchased {
+            let alert = UIAlertController(title: "提示", message: "免费使用一周，只需支付8元即可无限使用，感谢支持", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            alert.addAction(UIAlertAction(title: "去解锁", style: .default, handler: { [weak self] _ in
+                self?.requestPurchaseAndSave()
+            }))
+            present(alert, animated: true)
+            return
+        }
+        
+        performSave(image: image)
+    }
+    
+    private func performSave(image: UIImage) {
         let handler: (PHAuthorizationStatus) -> Void = { status in
             if status == .authorized || status == .limited {
                 UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
@@ -406,6 +437,29 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             PHPhotoLibrary.requestAuthorization(for: .addOnly, handler: handler)
         } else {
             PHPhotoLibrary.requestAuthorization(handler)
+        }
+    }
+    
+    private func requestPurchaseAndSave() {
+        let loadingAlert = UIAlertController(title: nil, message: "正在请求支付...", preferredStyle: .alert)
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = .medium
+        loadingIndicator.startAnimating()
+        loadingAlert.view.addSubview(loadingIndicator)
+        
+        present(loadingAlert, animated: true) {
+            PurchaseManager.shared.requestPurchase { [weak self] success in
+                DispatchQueue.main.async {
+                    self?.dismiss(animated: true) {
+                        if success {
+                            if let image = self?.imageView.image {
+                                self?.performSave(image: image)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     
