@@ -4,7 +4,9 @@ import Photos
 
 class ViewController: UIViewController, UIScrollViewDelegate {
 
+    private let recordContainer = UIView()
     private let broadcastPicker = RPSystemBroadcastPickerView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+    private let recordingLabel = UILabel()
     private let scrollView = UIScrollView()
     private let imageView = UIImageView()
     private let stitchButton = UIButton(type: .system)
@@ -56,10 +58,29 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         view.backgroundColor = .systemBackground
         title = "Long Screenshot"
         
-        // ... (broadcastPicker setup remains) ...
+        // 1. Record Container
+        recordContainer.backgroundColor = .systemGray6
+        recordContainer.layer.cornerRadius = 35
+        recordContainer.clipsToBounds = true
+        recordContainer.isUserInteractionEnabled = true
+        let tap = UITapGestureRecognizer(target: self, action: #selector(triggerBroadcastPicker))
+        recordContainer.addGestureRecognizer(tap)
+        recordContainer.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(recordContainer)
         
         broadcastPicker.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(broadcastPicker)
+        recordContainer.addSubview(broadcastPicker)
+        
+        // 1.1 Start Recording Label
+        recordingLabel.text = "开始录制"
+        recordingLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        recordingLabel.textColor = .label
+        recordingLabel.translatesAutoresizingMaskIntoConstraints = false
+        recordContainer.addSubview(recordingLabel)
+        
+        // We use a gesture on the container to trigger the picker,
+        // so we don't need to put the picker behind or expand it.
+        // We just place them side by side.
         
         // 2. Stitch Button
         stitchButton.setTitle("生成结果图", for: .normal)
@@ -78,9 +99,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         // 3. Guide Label
         guideLabel.text = """
         录制步骤：
-        1) 点上方“录制”开始
-        2) 去目标 App 连续向下滚动
-        3) 回来点 Generate 生成长截图
+        1) 点上方“开始录制”
+        2) 倒计时结束前切换到目标截图 App 由上向下连续向下滚动
+        3) 回来点生成长截图
         """
         guideLabel.textAlignment = .left
         guideLabel.font = .systemFont(ofSize: 13)
@@ -138,12 +159,22 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         view.addSubview(activityIndicator)
         
         var constraints: [NSLayoutConstraint] = [
-            broadcastPicker.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            broadcastPicker.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            broadcastPicker.widthAnchor.constraint(equalToConstant: 60),
-            broadcastPicker.heightAnchor.constraint(equalToConstant: 60),
+            recordContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            recordContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            recordContainer.heightAnchor.constraint(equalToConstant: 70),
+            recordContainer.widthAnchor.constraint(equalToConstant: 160),
             
-            stitchButton.topAnchor.constraint(equalTo: broadcastPicker.bottomAnchor, constant: 20),
+            // Picker is placed on the left edge
+            broadcastPicker.centerYAnchor.constraint(equalTo: recordContainer.centerYAnchor),
+            broadcastPicker.leadingAnchor.constraint(equalTo: recordContainer.leadingAnchor, constant: 10),
+            broadcastPicker.widthAnchor.constraint(equalToConstant: 50),
+            broadcastPicker.heightAnchor.constraint(equalToConstant: 50),
+            
+            // Label is placed to the right of the picker
+            recordingLabel.centerYAnchor.constraint(equalTo: recordContainer.centerYAnchor),
+            recordingLabel.leadingAnchor.constraint(equalTo: broadcastPicker.trailingAnchor, constant: 8),
+            
+            stitchButton.topAnchor.constraint(equalTo: recordContainer.bottomAnchor, constant: 24),
             stitchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             guideLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -200,7 +231,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
-            statusLabel.text = "Ready. Please start capturing first, then begin scrolling your content."
+            statusLabel.text = "准备就绪。请先开始录制，然后滚动内容。"
             
         case .generating(let frameCount):
             activityIndicator.startAnimating()
@@ -212,7 +243,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = false
             statusLabel.textColor = .label
-            statusLabel.text = "Stitching \(frameCount) frames..."
+            statusLabel.text = "正在拼接 \(frameCount) 张分片..."
             
         case .generated(let size, _, _):
             activityIndicator.stopAnimating()
@@ -224,7 +255,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             saveButton.isEnabled = (imageView.image != nil)
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
-            statusLabel.text = "Generated: \(Int(size.width))×\(Int(size.height)). You can now save it."
+            statusLabel.text = "生成成功：\(Int(size.width))×\(Int(size.height))。现在你可以保存了。"
             
         case .failed(let message):
             activityIndicator.stopAnimating()
@@ -237,7 +268,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .systemRed
 #if DEBUG
-            statusLabel.text = message + "\n\n(Tap here to preview chunks)"
+            statusLabel.text = message + "\n\n(点击此处预览分片)"
 #else
             statusLabel.text = message
 #endif
@@ -364,9 +395,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         if let error = error {
-            statusLabel.text = "Error saving: \(error.localizedDescription)"
+            statusLabel.text = "保存出错: \(error.localizedDescription)"
         } else {
-            statusLabel.text = "Saved to Photos!"
+            statusLabel.text = "成功保存至相册!"
         }
     }
     
@@ -390,6 +421,29 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             UIApplication.shared.open(url)
         }))
         present(alert, animated: true)
+    }
+    
+    @objc private func triggerBroadcastPicker() {
+        // Find the internal button of the broadcast picker and trigger it
+        if let button = broadcastPicker.subviews.first(where: { $0 is UIButton }) as? UIButton {
+            button.sendActions(for: .touchUpInside)
+            // Sometimes it's wrapped in another view on newer iOS versions
+        } else {
+            // Fallback: search recursively if not direct child
+            var foundButton: UIButton? = nil
+            func searchForButton(in view: UIView) {
+                if let btn = view as? UIButton {
+                    foundButton = btn
+                    return
+                }
+                for subview in view.subviews {
+                    searchForButton(in: subview)
+                    if foundButton != nil { return }
+                }
+            }
+            searchForButton(in: broadcastPicker)
+            foundButton?.sendActions(for: .touchUpInside)
+        }
     }
     
     // MARK: - UIScrollViewDelegate
