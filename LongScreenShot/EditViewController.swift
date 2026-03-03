@@ -10,6 +10,7 @@ class EditViewController: UIViewController {
     var onConfirm: (([(start: Int, end: Int)]) -> Void)?
     
     // UI Elements
+    private let hintLabel = UILabel()
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
     private var chunkContainers: [ChunkContainer] = []
@@ -44,6 +45,13 @@ class EditViewController: UIViewController {
     }
     
     private func setupUI() {
+        hintLabel.translatesAutoresizingMaskIntoConstraints = false
+        hintLabel.text = "点击后可拖动调整图片上下布局"
+        hintLabel.textColor = .secondaryLabel
+        hintLabel.font = .systemFont(ofSize: 14)
+        hintLabel.textAlignment = .center
+        hintLabel.numberOfLines = 0
+        
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -51,11 +59,16 @@ class EditViewController: UIViewController {
         stackView.distribution = .fill
         stackView.spacing = 0 // Key for seamless stitching look
         
+        view.addSubview(hintLabel)
         view.addSubview(scrollView)
         scrollView.addSubview(stackView)
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            hintLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            hintLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            hintLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            scrollView.topAnchor.constraint(equalTo: hintLabel.bottomAnchor, constant: 8),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
