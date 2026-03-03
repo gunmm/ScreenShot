@@ -8,7 +8,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     private let scrollView = UIScrollView()
     private let imageView = UIImageView()
     private let stitchButton = UIButton(type: .system)
+#if DEBUG
     private let previewButton = UIButton(type: .system) // New button
+#endif
     private let editButton = UIButton(type: .system) // Edit button
     private let saveButton = UIButton(type: .system)
     private let statusLabel = UILabel()
@@ -17,7 +19,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     private let actionsStack = UIStackView()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
     private var imageAspectRatioConstraint: NSLayoutConstraint?
+#if DEBUG
     private lazy var statusTapGesture = UITapGestureRecognizer(target: self, action: #selector(showPreview))
+#endif
     
     private enum UIState: Equatable {
         case idle
@@ -63,11 +67,13 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         stitchButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stitchButton)
         
+#if DEBUG
         // 2.1 Preview Button
         previewButton.setTitle("Debug: Preview Chunks", for: .normal)
         previewButton.addTarget(self, action: #selector(showPreview), for: .touchUpInside)
         previewButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(previewButton)
+#endif
         
         // 3. Guide Label
         guideLabel.text = """
@@ -109,7 +115,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         statusLabel.font = .systemFont(ofSize: 12)
         statusLabel.numberOfLines = 0
         statusLabel.isUserInteractionEnabled = true
+#if DEBUG
         statusLabel.addGestureRecognizer(statusTapGesture)
+#endif
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(statusLabel)
         
@@ -129,7 +137,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         activityIndicator.color = .gray
         view.addSubview(activityIndicator)
         
-        NSLayoutConstraint.activate([
+        var constraints: [NSLayoutConstraint] = [
             broadcastPicker.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             broadcastPicker.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             broadcastPicker.widthAnchor.constraint(equalToConstant: 60),
@@ -138,10 +146,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             stitchButton.topAnchor.constraint(equalTo: broadcastPicker.bottomAnchor, constant: 20),
             stitchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            previewButton.topAnchor.constraint(equalTo: stitchButton.bottomAnchor, constant: 10),
-            previewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            guideLabel.topAnchor.constraint(equalTo: previewButton.bottomAnchor, constant: 12),
             guideLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             guideLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
@@ -167,7 +171,21 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ]
+        
+#if DEBUG
+        constraints.append(contentsOf: [
+            previewButton.topAnchor.constraint(equalTo: stitchButton.bottomAnchor, constant: 10),
+            previewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            guideLabel.topAnchor.constraint(equalTo: previewButton.bottomAnchor, constant: 12)
         ])
+#else
+        constraints.append(
+            guideLabel.topAnchor.constraint(equalTo: stitchButton.bottomAnchor, constant: 12)
+        )
+#endif
+        
+        NSLayoutConstraint.activate(constraints)
     }
     
     private func render(state: UIState) {
@@ -175,7 +193,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         case .idle:
             activityIndicator.stopAnimating()
             stitchButton.isEnabled = true
+#if DEBUG
             previewButton.isEnabled = true
+#endif
             editButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
@@ -185,7 +205,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         case .generating(let frameCount):
             activityIndicator.startAnimating()
             stitchButton.isEnabled = false
+#if DEBUG
             previewButton.isEnabled = false
+#endif
             editButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = false
@@ -195,7 +217,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         case .generated(let size, _, _):
             activityIndicator.stopAnimating()
             stitchButton.isEnabled = true
+#if DEBUG
             previewButton.isEnabled = true
+#endif
             editButton.isEnabled = (imageView.image != nil)
             saveButton.isEnabled = (imageView.image != nil)
             view.isUserInteractionEnabled = true
@@ -205,12 +229,18 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         case .failed(let message):
             activityIndicator.stopAnimating()
             stitchButton.isEnabled = true
+#if DEBUG
             previewButton.isEnabled = true
+#endif
             editButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .systemRed
+#if DEBUG
             statusLabel.text = message + "\n\n(Tap here to preview chunks)"
+#else
+            statusLabel.text = message
+#endif
         }
     }
     
@@ -340,11 +370,13 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+#if DEBUG
     @objc private func showPreview() {
         let vc = ChunksPreviewViewController()
         let nav = UINavigationController(rootViewController: vc)
         present(nav, animated: true, completion: nil)
     }
+#endif
     
     private func presentPhotoPermissionAlert() {
         let alert = UIAlertController(
