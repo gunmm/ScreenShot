@@ -3,7 +3,7 @@ import Foundation
 struct AppGroupConfig {
     // MARK: - Configuration
     // TODO: USER_ACTION - Replace with your actual App Group ID
-    static let appGroupIdentifier = "group.gunmm.LongScreenShot"
+    static let appGroupIdentifier = "group.syl.LongScreenShot"
     
     // MARK: - Paths
     static var sharedContainerURL: URL? {
