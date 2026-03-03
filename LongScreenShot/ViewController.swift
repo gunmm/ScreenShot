@@ -59,6 +59,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         // Auto-stitch when returning from background
         NotificationCenter.default.addObserver(self, selector: #selector(autoGenerateIfPossible), name: UIApplication.willEnterForegroundNotification, object: nil)
+        
+        let statusManager = PurchaseStatusManager.shared
+        let isTrialExpired = statusManager.isTrialExpired()
     }
     
     deinit {
