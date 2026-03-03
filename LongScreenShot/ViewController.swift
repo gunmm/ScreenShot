@@ -52,6 +52,22 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         super.viewDidLoad()
         setupUI()
         state = .idle
+        
+        // Auto-stitch if chunks exist on load
+        autoGenerateIfPossible()
+        
+        // Auto-stitch when returning from background
+        NotificationCenter.default.addObserver(self, selector: #selector(autoGenerateIfPossible), name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc private func autoGenerateIfPossible() {
+        if ChunkManager.shared.chunkCount() >= 2 {
+            generateLongScreenshot()
+        }
     }
 
     private func setupUI() {
