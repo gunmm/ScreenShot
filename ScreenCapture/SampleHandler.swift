@@ -1,6 +1,8 @@
 import ReplayKit
 import VideoToolbox
 import CoreVideo
+import CoreGraphics
+import CoreImage
 import Darwin // For memcmp, memcpy
 
 class SampleHandler: RPBroadcastSampleHandler {
@@ -48,9 +50,17 @@ class SampleHandler: RPBroadcastSampleHandler {
         
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         
+        var orientedBuffer = pixelBuffer
+        if let orientationAttachment = CMGetAttachment(sampleBuffer, key: RPVideoSampleOrientationKey as CFString, attachmentModeOut: nil) as? NSNumber,
+           let orientation = CGImagePropertyOrientation(rawValue: orientationAttachment.uint32Value), orientation != .up {
+            if let rotated = rotatePixelBuffer(pixelBuffer, orientation: orientation) {
+                orientedBuffer = rotated
+            }
+        }
+        
         // 2. OpenCV-based Shift Detection
         if let lastBuffer = lastProcessedBuffer {
-            let result = OpenCVWrapper.compare(lastBuffer, with: pixelBuffer, staticThreshold: 5.0)
+            let result = OpenCVWrapper.compare(lastBuffer, with: orientedBuffer, staticThreshold: 5.0)
             
             if let dy = result["dy"] as? Double,
                let confidence = result["confidence"] as? Double,
@@ -79,13 +89,13 @@ class SampleHandler: RPBroadcastSampleHandler {
         }
         
         // 3. Save Full Frame
-        if let image = convertToUIImage(buffer: pixelBuffer) {
+        if let image = convertToUIImage(buffer: orientedBuffer) {
             print("---*** 保存 chunkIndex：\(chunkIndex)")
             ChunkManager.shared.saveChunk(image: image, index: chunkIndex)
             chunkIndex += 1
             
             // Update state
-            lastProcessedBuffer = deepCopy(buffer: pixelBuffer)
+            lastProcessedBuffer = deepCopy(buffer: orientedBuffer)
             lastTimestamp = timestamp
         }
     }
@@ -96,6 +106,31 @@ class SampleHandler: RPBroadcastSampleHandler {
         // Create CGImage to ensure we get a snapshot
         if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
             return UIImage(cgImage: cgImage)
+        }
+        return nil
+    }
+    
+    private func rotatePixelBuffer(_ pixelBuffer: CVPixelBuffer, orientation: CGImagePropertyOrientation) -> CVPixelBuffer? {
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer).oriented(orientation)
+        
+        var newPixelBuffer: CVPixelBuffer?
+        let attributes: [String: Any] = [
+            kCVPixelBufferIOSurfacePropertiesKey as String: [:]
+        ]
+        
+        let width = Int(ciImage.extent.width)
+        let height = Int(ciImage.extent.height)
+        
+        let status = CVPixelBufferCreate(kCFAllocatorDefault,
+                                         width,
+                                         height,
+                                         CVPixelBufferGetPixelFormatType(pixelBuffer),
+                                         attributes as CFDictionary,
+                                         &newPixelBuffer)
+        
+        if status == kCVReturnSuccess, let destBuffer = newPixelBuffer {
+            context.render(ciImage, to: destBuffer, bounds: ciImage.extent, colorSpace: ciImage.colorSpace)
+            return destBuffer
         }
         return nil
     }
