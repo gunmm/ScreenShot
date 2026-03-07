@@ -36,7 +36,7 @@ class SettingsViewController: UIViewController {
     
     private lazy var premiumButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("放弃免费使用时间，点击付费", for: .normal)
+        button.setTitle("放弃免费使用时间", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 14)
         button.tintColor = .systemRed
         button.addTarget(self, action: #selector(premiumButtonTapped), for: .touchUpInside)
