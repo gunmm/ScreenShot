@@ -113,13 +113,42 @@ class SampleHandler: RPBroadcastSampleHandler {
     private func rotatePixelBuffer(_ pixelBuffer: CVPixelBuffer, orientation: CGImagePropertyOrientation) -> CVPixelBuffer? {
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer).oriented(orientation)
         
+        // CVPixelBufferCreate usually creates a bottom-left origin buffer for CIContext.
+        // Depending on the applied orientation, we need to flip the image horizontally and/or vertically
+        // to ensure it renders right-side-up and unmirrored in the final CVPixelBuffer.
+        
+        var sx: CGFloat = 1.0
+        var sy: CGFloat = 1.0
+        
+        switch orientation {
+        case .up:
+            sx = 1.0; sy = 1.0
+        case .down:
+            sx = 1.0; sy = 1.0
+        case .left:
+            sx = -1.0; sy = -1.0
+        case .right:
+            sx = -1.0; sy = -1.0
+        default:
+            // Standard fallback
+            sx = 1.0; sy = 1.0
+        }
+        
+        var flippedImage = ciImage
+        if sx != 1.0 || sy != 1.0 {
+            let tx: CGFloat = sx == -1.0 ? -ciImage.extent.width : 0.0
+            let ty: CGFloat = sy == -1.0 ? -ciImage.extent.height : 0.0
+            let transform = CGAffineTransform(scaleX: sx, y: sy).translatedBy(x: tx, y: ty)
+            flippedImage = ciImage.transformed(by: transform)
+        }
+        
         var newPixelBuffer: CVPixelBuffer?
         let attributes: [String: Any] = [
             kCVPixelBufferIOSurfacePropertiesKey as String: [:]
         ]
         
-        let width = Int(ciImage.extent.width)
-        let height = Int(ciImage.extent.height)
+        let width = Int(flippedImage.extent.width)
+        let height = Int(flippedImage.extent.height)
         
         let status = CVPixelBufferCreate(kCFAllocatorDefault,
                                          width,
@@ -129,7 +158,15 @@ class SampleHandler: RPBroadcastSampleHandler {
                                          &newPixelBuffer)
         
         if status == kCVReturnSuccess, let destBuffer = newPixelBuffer {
-            context.render(ciImage, to: destBuffer, bounds: ciImage.extent, colorSpace: ciImage.colorSpace)
+            // Keep original attachments (like color space, etc)
+            if let attachments = CVBufferGetAttachments(pixelBuffer, .shouldPropagate) {
+                CVBufferSetAttachments(destBuffer, attachments, .shouldPropagate)
+            }
+            if let nonPropagatingAttachments = CVBufferGetAttachments(pixelBuffer, .shouldNotPropagate) {
+                CVBufferSetAttachments(destBuffer, nonPropagatingAttachments, .shouldNotPropagate)
+            }
+            
+            context.render(flippedImage, to: destBuffer, bounds: flippedImage.extent, colorSpace: flippedImage.colorSpace)
             return destBuffer
         }
         return nil
