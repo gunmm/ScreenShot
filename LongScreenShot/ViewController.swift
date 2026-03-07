@@ -13,9 +13,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 #if DEBUG
     private let previewButton = UIButton(type: .system) // New button
 #endif
+    private let settingsButton = UIButton(type: .system) // Top right settings button
     private let editButton = UIButton(type: .system) // Edit button
     private let saveButton = UIButton(type: .system)
-    private let settingsButton = UIButton(type: .system) // Settings button
     private let statusLabel = UILabel()
     private let guideLabel = UILabel()
     
@@ -130,9 +130,15 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         guideLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(guideLabel)
                 
-        // 4. Settings / Edit / Save Buttons
-        settingsButton.setTitle("设置", for: .normal)
+        // 4. Settings Button
+        let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
+        settingsButton.setImage(UIImage(systemName: "gearshape", withConfiguration: config), for: .normal)
+        settingsButton.tintColor = .systemBlue
         settingsButton.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
+        settingsButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(settingsButton)
+        
+        // 5. Edit / Save Buttons
         
         editButton.setTitle("编辑", for: .normal)
         editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
@@ -142,7 +148,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
         saveButton.isEnabled = false
         
-        settingsButton.translatesAutoresizingMaskIntoConstraints = false
         editButton.translatesAutoresizingMaskIntoConstraints = false
         saveButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -152,10 +157,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         actionsStack.translatesAutoresizingMaskIntoConstraints = false
         actionsStack.addArrangedSubview(editButton)
         actionsStack.addArrangedSubview(saveButton)
-        actionsStack.addArrangedSubview(settingsButton)
         view.addSubview(actionsStack)
         
-        // 5. Status Label
+        // 6. Status Label
         statusLabel.text = "准备就绪。请先开始录制，然后滚动内容。"
         statusLabel.textAlignment = .center
         statusLabel.font = .systemFont(ofSize: 12)
@@ -167,7 +171,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(statusLabel)
         
-        // 6. ScrollView & ImageView
+        // 7. ScrollView & ImageView
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.delegate = self
         scrollView.minimumZoomScale = 0.1
@@ -177,7 +181,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         scrollView.addSubview(imageView)
         view.addSubview(scrollView)
         
-        // 7. Activity Indicator
+        // 8. Activity Indicator
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.hidesWhenStopped = true
         activityIndicator.color = .gray
@@ -198,6 +202,11 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             // Label is placed to the right of the picker
             recordingLabel.centerYAnchor.constraint(equalTo: recordContainer.centerYAnchor),
             recordingLabel.leadingAnchor.constraint(equalTo: broadcastPicker.trailingAnchor, constant: 8),
+            
+            settingsButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            settingsButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            settingsButton.widthAnchor.constraint(equalToConstant: 44),
+            settingsButton.heightAnchor.constraint(equalToConstant: 44),
             
             stitchButton.topAnchor.constraint(equalTo: recordContainer.bottomAnchor, constant: 24),
             stitchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -469,8 +478,16 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         if let error = error {
             statusLabel.text = "保存出错: \(error.localizedDescription)"
+            
+            let alert = UIAlertController(title: "保存失败", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            present(alert, animated: true)
         } else {
             statusLabel.text = "成功保存至相册!"
+            
+            let alert = UIAlertController(title: "保存成功", message: "长截图已成功保存到相册。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            present(alert, animated: true)
         }
     }
     
