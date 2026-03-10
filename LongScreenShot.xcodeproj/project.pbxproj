@@ -497,7 +497,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LongScreenShot/LongScreenShot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -537,7 +537,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LongScreenShot/LongScreenShot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -765,7 +765,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScreenCaptureSetupUI/Info.plist;
@@ -792,7 +792,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScreenCaptureSetupUI/Info.plist;
@@ -821,7 +821,7 @@
 				CODE_SIGN_ENTITLEMENTS = ScreenCapture/ScreenCapture.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/LongScreenShot/3rd";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -852,7 +852,7 @@
 				CODE_SIGN_ENTITLEMENTS = ScreenCapture/ScreenCapture.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/LongScreenShot/3rd";
 				GENERATE_INFOPLIST_FILE = YES;
