@@ -460,18 +460,35 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         loadingIndicator.startAnimating()
         loadingAlert.view.addSubview(loadingIndicator)
         
-        present(loadingAlert, animated: true) {
-            PurchaseManager.shared.requestPurchase { [weak self] success in
+        let startFlow = { [weak self] in
+            guard let self = self else { return }
+            self.present(loadingAlert, animated: true)
+            
+            PurchaseManager.shared.requestPurchase { success in
                 DispatchQueue.main.async {
-                    self?.dismiss(animated: true) {
+                    let finishAction = {
                         if success {
-                            if let image = self?.imageView.image {
-                                self?.performSave(image: image)
+                            if let image = self.imageView.image {
+                                self.performSave(image: image)
                             }
                         }
                     }
+                    
+                    if loadingAlert.presentingViewController != nil {
+                        loadingAlert.dismiss(animated: true, completion: finishAction)
+                    } else {
+                        finishAction()
+                    }
                 }
             }
+        }
+        
+        if presentedViewController != nil {
+            dismiss(animated: true) {
+                startFlow()
+            }
+        } else {
+            startFlow()
         }
     }
     
