@@ -40,13 +40,13 @@ class EditViewController: UIViewController {
         title = "Edit Stitching"
         view.backgroundColor = .systemBackground
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(cancelTapped))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(doneTapped))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: NSLocalizedString("取消", comment: "Cancel button"), style: .plain, target: self, action: #selector(cancelTapped))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: NSLocalizedString("完成", comment: "Done button"), style: .done, target: self, action: #selector(doneTapped))
     }
     
     private func setupUI() {
         hintLabel.translatesAutoresizingMaskIntoConstraints = false
-        hintLabel.text = "点击后可拖动调整图片上下布局"
+        hintLabel.text = NSLocalizedString("点击后可拖动调整图片上下布局", comment: "Drag hint label")
         hintLabel.textColor = .secondaryLabel
         hintLabel.font = .systemFont(ofSize: 14)
         hintLabel.textAlignment = .center

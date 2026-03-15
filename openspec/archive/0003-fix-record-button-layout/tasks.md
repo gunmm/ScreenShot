@@ -1,0 +1,6 @@
+- [x] PROPOSE: 创建 proposal.md 描述问题。
+- [x] SPEC: 在 specs/ 下创建 requirement.md，描述用户边界条件和验收标准。
+- [x] DESIGN: 编写 design.md。
+- [ ] TASKS: 编写此任务列表。
+- [ ] APPLY: 修改 `ViewController.swift` 的布局约束条件以适应长文本。
+- [ ] SYNC & ARCHIVE: 完成代码修改后验证无误，更新主规格并归档该变更。

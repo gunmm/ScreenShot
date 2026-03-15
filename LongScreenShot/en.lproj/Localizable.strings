@@ -1,0 +1,42 @@
+/* English Localization */
+"Long Screenshot" = "Long Screenshot";
+"开始录制" = "Start Recording";
+"生成结果图" = "Generate Image";
+"录制步骤：\n1) 点上方“开始录制”\n2) 倒计时结束前切换到目标截图 App 由上向下连续向下滚动\n3) 回来点生成长截图" = "Recording Guide:\n1) Tap 'Start Recording' above\n2) Before countdown ends, switch to target app and scroll down continuously\n3) Return here and tap Generate Image";
+"编辑" = "Edit";
+"保存" = "Save";
+"准备就绪。请先开始录制，然后滚动内容。" = "Ready. Please start recording and then scroll the content.";
+"正在拼接 %d 张分片..." = "Stitching %d chunks...";
+"生成成功：%d×%d。现在你可以保存了。" = "Generated successfully: %d×%d. You can save it now.";
+"没有录到足够的分片（至少需要 2 张）。\n建议：\n- 先点击上方录制开始\n- 去目标 App 连续向下滚动 10–30 秒\n- 回来再点 Generate" = "Not enough chunks recorded (at least 2 required).\nTips:\n- Tap 'Start Recording' above first\n- Go to target app and scroll down continuously for 10-30s\n- Return and tap Generate";
+"没有找到录制分片。\n建议：\n- 确认已开始录制\n- 滚动要更连续、避免停顿太久\n- 需要时点 Debug 预览分片确认是否写入成功" = "No chunks found.\nTips:\n- Ensure recording has started\n- Scroll more continuously without pausing too long\n- Debug to preview chunks if needed";
+"拼接失败。\n建议：\n- 滚动更慢、更连续\n- 避免大面积动态内容（视频/强动画）\n- 点 Debug 预览分片确认内容是否连续" = "Stitching failed.\nTips:\n- Scroll slower and more continuously\n- Avoid dynamic content (video/strong animation)\n- Debug to preview chunks and check continuity";
+"根据新裁剪参数拼接失败。" = "Stitching failed with new cropping parameters.";
+"提示" = "Notice";
+"免费使用一周，只需支付8元即可无限使用，感谢支持" = "Free trial for a week. Pay only $1.99 for unlimited access. Thank you for your support.";
+"取消" = "Cancel";
+"去解锁" = "Unlock Now";
+"相册权限被拒绝。可在系统设置中开启“照片-添加”。" = "Photo permission denied. Please enable 'Photos - Add' in Settings.";
+"正在请求支付..." = "Requesting purchase...";
+"保存出错: %@" = "Save error: %@";
+"保存失败" = "Save Failed";
+"确定" = "OK";
+"成功保存至相册!" = "Successfully saved to Photos!";
+"保存成功" = "Save Successful";
+"长截图已成功保存到相册。" = "The long screenshot has been saved to your Photos.";
+"需要照片权限" = "Photo Permission Required";
+"用于将生成的长截图保存到相册。" = "Required to save the generated long screenshot to Photos.";
+"去设置" = "Go to Settings";
+
+/* Settings */
+"设置" = "Settings";
+"放弃免费使用时间" = "Give up free trial time";
+"免费试用已结束，当前状态已重置为过期" = "Free trial has ended, current status reset to expired.";
+"恢复购买" = "Restore Purchase";
+"正在恢复..." = "Restoring...";
+"恢复成功" = "Restore Successful";
+"您的购买已恢复" = "Your purchase has been restored.";
+
+/* Edit */
+"完成" = "Done";
+"点击后可拖动调整图片上下布局" = "Tap and drag to adjust image layout up and down";

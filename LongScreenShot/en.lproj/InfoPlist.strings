@@ -1,0 +1,3 @@
+/* InfoPlist.strings English */
+"NSPhotoLibraryAddUsageDescription" = "Required to save generated screenshots to your photo library.";
+"NSPhotoLibraryUsageDescription" = "Required to access and save screenshots in your photo library.";

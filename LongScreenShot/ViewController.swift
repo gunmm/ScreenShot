@@ -76,7 +76,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        title = "Long Screenshot"
+        title = NSLocalizedString("Long Screenshot", comment: "Main title")
         
         // 1. Record Container
         recordContainer.backgroundColor = .systemGray6
@@ -92,7 +92,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         recordContainer.addSubview(broadcastPicker)
         
         // 1.1 Start Recording Label
-        recordingLabel.text = "开始录制"
+        recordingLabel.text = NSLocalizedString("开始录制", comment: "Start recording label")
         recordingLabel.font = .systemFont(ofSize: 16, weight: .medium)
         recordingLabel.textColor = .label
         recordingLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -103,7 +103,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         // We just place them side by side.
         
         // 2. Stitch Button
-        stitchButton.setTitle("生成结果图", for: .normal)
+        stitchButton.setTitle(NSLocalizedString("生成结果图", comment: "Generate result image button"), for: .normal)
         stitchButton.addTarget(self, action: #selector(generateLongScreenshot), for: .touchUpInside)
         stitchButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stitchButton)
@@ -117,12 +117,12 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 #endif
         
         // 3. Guide Label
-        guideLabel.text = """
+        guideLabel.text = NSLocalizedString("""
         录制步骤：
         1) 点上方“开始录制”
         2) 倒计时结束前切换到目标截图 App 由上向下连续向下滚动
         3) 回来点生成长截图
-        """
+        """, comment: "Recording guide")
         guideLabel.textAlignment = .left
         guideLabel.font = .systemFont(ofSize: 13)
         guideLabel.textColor = .secondaryLabel
@@ -140,11 +140,11 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         // 5. Edit / Save Buttons
         
-        editButton.setTitle("编辑", for: .normal)
+        editButton.setTitle(NSLocalizedString("编辑", comment: "Edit button"), for: .normal)
         editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
         editButton.isEnabled = false
         
-        saveButton.setTitle("保存", for: .normal)
+        saveButton.setTitle(NSLocalizedString("保存", comment: "Save button"), for: .normal)
         saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
         saveButton.isEnabled = false
         
@@ -160,7 +160,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         view.addSubview(actionsStack)
         
         // 6. Status Label
-        statusLabel.text = "准备就绪。请先开始录制，然后滚动内容。"
+        statusLabel.text = NSLocalizedString("准备就绪。请先开始录制，然后滚动内容。", comment: "Status ready")
         statusLabel.textAlignment = .center
         statusLabel.font = .systemFont(ofSize: 12)
         statusLabel.numberOfLines = 0
@@ -191,7 +191,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             recordContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             recordContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             recordContainer.heightAnchor.constraint(equalToConstant: 70),
-            recordContainer.widthAnchor.constraint(equalToConstant: 160),
+            recordContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 160),
             
             // Picker is placed on the left edge
             broadcastPicker.centerYAnchor.constraint(equalTo: recordContainer.centerYAnchor),
@@ -202,6 +202,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             // Label is placed to the right of the picker
             recordingLabel.centerYAnchor.constraint(equalTo: recordContainer.centerYAnchor),
             recordingLabel.leadingAnchor.constraint(equalTo: broadcastPicker.trailingAnchor, constant: 8),
+            recordingLabel.trailingAnchor.constraint(equalTo: recordContainer.trailingAnchor, constant: -16),
             
             settingsButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
             settingsButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
@@ -265,7 +266,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
-            statusLabel.text = "准备就绪。请先开始录制，然后滚动内容。"
+            statusLabel.text = NSLocalizedString("准备就绪。请先开始录制，然后滚动内容。", comment: "Status ready")
             
         case .generating(let frameCount):
             activityIndicator.startAnimating()
@@ -277,7 +278,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = false
             statusLabel.textColor = .label
-            statusLabel.text = "正在拼接 \(frameCount) 张分片..."
+            statusLabel.text = String(format: NSLocalizedString("正在拼接 %d 张分片...", comment: "Generating chunks status"), frameCount)
             
         case .generated(let size, _, _):
             activityIndicator.stopAnimating()
@@ -289,7 +290,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             saveButton.isEnabled = (imageView.image != nil)
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
-            statusLabel.text = "生成成功：\(Int(size.width))×\(Int(size.height))。现在你可以保存了。"
+            statusLabel.text = String(format: NSLocalizedString("生成成功：%d×%d。现在你可以保存了。", comment: "Generation success status"), Int(size.width), Int(size.height))
             
         case .failed(let message):
             activityIndicator.stopAnimating()
@@ -326,13 +327,13 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         // Quick pre-check (avoid loading all images if empty)
         let count = ChunkManager.shared.chunkCount()
         guard count >= 2 else {
-            state = .failed(message: """
+            state = .failed(message: NSLocalizedString("""
             没有录到足够的分片（至少需要 2 张）。
             建议：
             - 先点击上方录制开始
             - 去目标 App 连续向下滚动 10–30 秒
             - 回来再点 Generate
-            """)
+            """, comment: "Error not enough chunks"))
             return
         }
         
@@ -341,13 +342,13 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         let chunks = chunksWithOffsets.map { $0.image }
         
         guard !chunks.isEmpty else {
-            state = .failed(message: """
+            state = .failed(message: NSLocalizedString("""
             没有找到录制分片。
             建议：
             - 确认已开始录制
             - 滚动要更连续、避免停顿太久
             - 需要时点 Debug 预览分片确认是否写入成功
-            """)
+            """, comment: "Error no chunks found"))
             return
         }
         
@@ -364,13 +365,13 @@ class ViewController: UIViewController, UIScrollViewDelegate {
                     self.display(image: result)
                     self.state = .generated(size: result.size, images: chunks, ranges: ranges)
                 } else {
-                    self.state = .failed(message: """
+                    self.state = .failed(message: NSLocalizedString("""
                     拼接失败。
                     建议：
                     - 滚动更慢、更连续
                     - 避免大面积动态内容（视频/强动画）
                     - 点 Debug 预览分片确认内容是否连续
-                    """)
+                    """, comment: "Error stitching failed"))
                 }
             }
         }
@@ -406,7 +407,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
                     self.display(image: result)
                     self.state = .generated(size: result.size, images: images, ranges: newRanges)
                 } else {
-                    self.state = .failed(message: "根据新裁剪参数拼接失败。")
+                    self.state = .failed(message: NSLocalizedString("根据新裁剪参数拼接失败。", comment: "Error editing failed"))
                 }
             }
         }
@@ -421,9 +422,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         let isTrialExpired = statusManager.isTrialExpired()
         
         if isTrialExpired && !isPurchased {
-            let alert = UIAlertController(title: "提示", message: "免费使用一周，只需支付8元即可无限使用，感谢支持", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
-            alert.addAction(UIAlertAction(title: "去解锁", style: .default, handler: { [weak self] _ in
+            let alert = UIAlertController(title: NSLocalizedString("提示", comment: "Alert title prompt"), message: NSLocalizedString("免费使用一周，只需支付8元即可无限使用，感谢支持", comment: "Trial expired message"), preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel action"), style: .cancel))
+            alert.addAction(UIAlertAction(title: NSLocalizedString("去解锁", comment: "Unlock action"), style: .default, handler: { [weak self] _ in
                 self?.requestPurchaseAndSave()
             }))
             present(alert, animated: true)
@@ -439,7 +440,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
                 UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
             } else {
                 DispatchQueue.main.async {
-                    self.state = .failed(message: "相册权限被拒绝。可在系统设置中开启“照片-添加”。")
+                    self.state = .failed(message: NSLocalizedString("相册权限被拒绝。可在系统设置中开启“照片-添加”。", comment: "Photo permission denied"))
                     self.presentPhotoPermissionAlert()
                 }
             }
@@ -453,7 +454,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     private func requestPurchaseAndSave() {
-        let loadingAlert = UIAlertController(title: nil, message: "正在请求支付...", preferredStyle: .alert)
+        let loadingAlert = UIAlertController(title: nil, message: NSLocalizedString("正在请求支付...", comment: "Requesting purchase loading"), preferredStyle: .alert)
         let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = .medium
@@ -494,16 +495,16 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         if let error = error {
-            statusLabel.text = "保存出错: \(error.localizedDescription)"
+            statusLabel.text = String(format: NSLocalizedString("保存出错: %@", comment: "Save error status"), error.localizedDescription)
             
-            let alert = UIAlertController(title: "保存失败", message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            let alert = UIAlertController(title: NSLocalizedString("保存失败", comment: "Save error title"), message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
             present(alert, animated: true)
         } else {
-            statusLabel.text = "成功保存至相册!"
+            statusLabel.text = NSLocalizedString("成功保存至相册!", comment: "Save success status")
             
-            let alert = UIAlertController(title: "保存成功", message: "长截图已成功保存到相册。", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            let alert = UIAlertController(title: NSLocalizedString("保存成功", comment: "Save success title"), message: NSLocalizedString("长截图已成功保存到相册。", comment: "Save success message"), preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
             present(alert, animated: true)
         }
     }
@@ -518,12 +519,12 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     
     private func presentPhotoPermissionAlert() {
         let alert = UIAlertController(
-            title: "需要照片权限",
-            message: "用于将生成的长截图保存到相册。",
+            title: NSLocalizedString("需要照片权限", comment: "Need photo permission title"),
+            message: NSLocalizedString("用于将生成的长截图保存到相册。", comment: "Need photo permission message"),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
-        alert.addAction(UIAlertAction(title: "去设置", style: .default, handler: { _ in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel action"), style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("去设置", comment: "Go to settings action"), style: .default, handler: { _ in
             guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
             UIApplication.shared.open(url)
         }))
