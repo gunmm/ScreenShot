@@ -61,6 +61,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = PMConfig.xcconfig; sourceTree = "<group>"; };
 		CDE361272F2493370020E3EF /* LongScreenShot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LongScreenShot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDE3613D2F2493380020E3EF /* LongScreenShotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LongScreenShotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDE361472F2493380020E3EF /* LongScreenShotUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LongScreenShotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,15 +117,11 @@
 		};
 		CDE361402F2493380020E3EF /* LongScreenShotTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = LongScreenShotTests;
 			sourceTree = "<group>";
 		};
 		CDE3614A2F2493380020E3EF /* LongScreenShotUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = LongScreenShotUITests;
 			sourceTree = "<group>";
 		};
@@ -198,6 +195,7 @@
 				CDE361862F24980B0020E3EF /* ScreenCaptureSetupUI */,
 				CDE361772F24980B0020E3EF /* Frameworks */,
 				CDE361282F2493370020E3EF /* Products */,
+				5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -486,13 +484,14 @@
 /* Begin XCBuildConfiguration section */
 		CDE361512F2493380020E3EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LongScreenShot/LongScreenShot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -513,7 +512,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShot;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -526,13 +525,14 @@
 		};
 		CDE361522F2493380020E3EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LongScreenShot/LongScreenShot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -553,7 +553,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShot;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -565,6 +565,7 @@
 		};
 		CDE361532F2493380020E3EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -628,6 +629,7 @@
 		};
 		CDE361542F2493380020E3EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -684,14 +686,15 @@
 		};
 		CDE361562F2493380020E3EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShotTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -703,14 +706,15 @@
 		};
 		CDE361572F2493380020E3EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShotTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -722,13 +726,14 @@
 		};
 		CDE361592F2493380020E3EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShotUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -740,13 +745,14 @@
 		};
 		CDE3615A2F2493380020E3EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShotUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -758,9 +764,10 @@
 		};
 		CDE361912F24980B0020E3EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScreenCaptureSetupUI/Info.plist;
@@ -772,7 +779,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShot.ScreenCaptureSetupUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -785,9 +792,10 @@
 		};
 		CDE361922F24980B0020E3EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScreenCaptureSetupUI/Info.plist;
@@ -799,7 +807,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShot.ScreenCaptureSetupUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -812,11 +820,12 @@
 		};
 		CDE361952F24980B0020E3EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = ScreenCapture/ScreenCapture.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/LongScreenShot/3rd";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -829,7 +838,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShot.ScreenCaptureSyl;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -843,11 +852,12 @@
 		};
 		CDE361962F24980B0020E3EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = ScreenCapture/ScreenCapture.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = Y2AMD36L7X;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/LongScreenShot/3rd";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -860,7 +870,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = "$(APP_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.syl.LongScreenShot.ScreenCaptureSyl;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
