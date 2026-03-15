@@ -116,11 +116,15 @@
 		};
 		CDE361402F2493380020E3EF /* LongScreenShotTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LongScreenShotTests;
 			sourceTree = "<group>";
 		};
 		CDE3614A2F2493380020E3EF /* LongScreenShotUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LongScreenShotUITests;
 			sourceTree = "<group>";
 		};
@@ -240,8 +244,6 @@
 				CDE361292F2493370020E3EF /* LongScreenShot */,
 			);
 			name = LongScreenShot;
-			packageProductDependencies = (
-			);
 			productName = LongScreenShot;
 			productReference = CDE361272F2493370020E3EF /* LongScreenShot.app */;
 			productType = "com.apple.product-type.application";
@@ -263,8 +265,6 @@
 				CDE361402F2493380020E3EF /* LongScreenShotTests */,
 			);
 			name = LongScreenShotTests;
-			packageProductDependencies = (
-			);
 			productName = LongScreenShotTests;
 			productReference = CDE3613D2F2493380020E3EF /* LongScreenShotTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -286,8 +286,6 @@
 				CDE3614A2F2493380020E3EF /* LongScreenShotUITests */,
 			);
 			name = LongScreenShotUITests;
-			packageProductDependencies = (
-			);
 			productName = LongScreenShotUITests;
 			productReference = CDE361472F2493380020E3EF /* LongScreenShotUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -308,8 +306,6 @@
 				CDE3617A2F24980B0020E3EF /* ScreenCapture */,
 			);
 			name = ScreenCapture;
-			packageProductDependencies = (
-			);
 			productName = ScreenCapture;
 			productReference = CDE361762F24980B0020E3EF /* ScreenCapture.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -330,8 +326,6 @@
 				CDE361862F24980B0020E3EF /* ScreenCaptureSetupUI */,
 			);
 			name = ScreenCaptureSetupUI;
-			packageProductDependencies = (
-			);
 			productName = ScreenCaptureSetupUI;
 			productReference = CDE361822F24980B0020E3EF /* ScreenCaptureSetupUI.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -372,6 +366,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = CDE3611E2F2493370020E3EF;
 			minimizedProjectReferenceProxies = 1;
