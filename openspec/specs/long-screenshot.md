@@ -42,3 +42,4 @@
 2. **OpenCV 匹配失败**：如果两个图片找不到明显的重叠特征点（置信度过低），会采用 Full Appending （不裁剪直接叠加）作为安全降级方案，以免丢失内联容错数据。用户可通过 Edit 修正。
 3. **负高度或负重叠**：如果用户或者 OpenCV 将上一图的底部切在下一图的顶部还要靠上的位置，会通过高度传播算法（Debt Propagation）使得负重叠被前方分片“吸收”，避免在画布上绘制出负坐标的画面。
 4. **编辑界面无效输入**：保证 Top Slider 的值不会大于 Bottom Slider。
+5. **相册保存安全性**：由于相册授权回调及完成回调并不保证处于主线程，任何写入系统相册的方法（如 `UIImageWriteToSavedPhotosAlbum`）及产生的 UI 变更，必须严格 dispatch 到 `DispatchQueue.main.async`，防止由于线程违规导致“Unknown error”保存失败。

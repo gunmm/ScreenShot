@@ -1,0 +1,4 @@
+- [ ] 1. 生成 proposal 和 design。
+- [ ] 2. 修改 `AppLogger.swift` 常量。
+- [ ] 3. 修改 `openspec/specs/feedback-log.md`。
+- [ ] 4. 归档。

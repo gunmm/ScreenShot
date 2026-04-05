@@ -1,0 +1,4 @@
+- [ ] 1. 创建 AppLogger 和 CloudKitManager。
+- [ ] 2. 替换主要 print 日志点。
+- [ ] 3. 创建 FeedbackViewController 并集成。
+- [ ] 4. 进行效果验证和代码回写主规格。
