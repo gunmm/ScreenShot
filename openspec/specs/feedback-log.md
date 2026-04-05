@@ -25,3 +25,8 @@
 
 ### 3. 用户交互 (`FeedbackViewController` -> `SettingsViewController`)
 `Settings` 底部展示了“用户反馈与求助”入口，该窗口包含标准的 `UITextView` 及提交拦截判断，不强制要求特殊授权。所有提交基于隐式的系统网络代理及 iCloud Token 支持。
+
+#### 提交失败重试（0006）
+上传失败后，错误 Alert 包含两个选项：
+- **重试**：直接再次触发提交逻辑，重新发起 CloudKit 上传。
+- **取消**：关闭 Alert，用户停留在反馈页，输入内容保留，可随时再次点击"提交"。
