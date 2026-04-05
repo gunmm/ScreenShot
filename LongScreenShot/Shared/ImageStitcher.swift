@@ -6,7 +6,7 @@ class ImageStitcher {
     // Backwards compatible method
     static func stitch(images: [UIImage]) -> UIImage? {
         guard images.count >= 2 else {
-            AppLogger.shared.log("Need at least 2 images to stitch.")
+            print("Need at least 2 images to stitch.")
             return images.first
         }
         
@@ -40,7 +40,7 @@ class ImageStitcher {
                 let confidence = confidenceNum.doubleValue
                 let matchYInImg2 = matchYInImg2Num.intValue
                 
-                AppLogger.shared.log("Match Pair \(i)->\(i+1): Conf=\(confidence), CutPointInImg1=\(cutPointInImg1), MinMatchY2=\(matchYInImg2)")
+                print("Match Pair \(i)->\(i+1): Conf=\(confidence), CutPointInImg1=\(cutPointInImg1), MinMatchY2=\(matchYInImg2)")
 
                 // ORB confidence check
                 if confidence > 0.3 && cutPointInImg1 >= 0 && cutPointInImg1 < Int(img1.size.height * img1.scale) {
@@ -51,13 +51,13 @@ class ImageStitcher {
                     validRanges[i].end = cutBottom1
                     validRanges[i+1].start = cutTop2
                     
-                    AppLogger.shared.log("  -> Cutting Img\(i) Bottom at: \(cutBottom1)")
-                    AppLogger.shared.log("  -> Cutting Img\(i+1) Top at: \(cutTop2)")
+                    print("  -> Cutting Img\(i) Bottom at: \(cutBottom1)")
+                    print("  -> Cutting Img\(i+1) Top at: \(cutTop2)")
                 } else {
-                    AppLogger.shared.log("Low confidence or invalid cut point for pair \(i)->\(i+1). Appending full image.")
+                    print("Low confidence or invalid cut point for pair \(i)->\(i+1). Appending full image.")
                 }
             } else {
-                AppLogger.shared.log("No overlap found for pair \(i)->\(i+1).")
+                print("No overlap found for pair \(i)->\(i+1).")
             }        
         }
         
@@ -77,7 +77,7 @@ class ImageStitcher {
             
             if end < start {
                 let overlap = start - end
-                AppLogger.shared.log("Img\(i) is redundant (Negative Height: \(end - start)). Propagating trim of \(overlap)px to previous images.")
+                print("Img\(i) is redundant (Negative Height: \(end - start)). Propagating trim of \(overlap)px to previous images.")
                 
                 // 1. Collapse current image to size 0
                 validRanges[i].start = end 
@@ -112,10 +112,10 @@ class ImageStitcher {
         let width = firstCG.width
         var totalHeight = 0
         
-        AppLogger.shared.log("--- Final Stitching Ranges ---")
+        print("--- Final Stitching Ranges ---")
         for (index, range) in validRanges.enumerated() {
             let h = range.end - range.start
-            AppLogger.shared.log("Img\(index): Range [\(range.start) - \(range.end)], Height: \(h)")
+            print("Img\(index): Range [\(range.start) - \(range.end)], Height: \(h)")
             if h > 0 {
                 totalHeight += h
             }
@@ -153,10 +153,15 @@ class ImageStitcher {
         UIGraphicsEndImageContext()
         
         // Restore the original scale if needed
+        var finalImage = resultImage
         if let cgResult = resultImage?.cgImage {
-            return UIImage(cgImage: cgResult, scale: images[0].scale, orientation: .up)
+            finalImage = UIImage(cgImage: cgResult, scale: images[0].scale, orientation: .up)
         }
         
-        return resultImage
+        if let finalSize = finalImage?.size {
+            AppLogger.shared.log("裁剪/拼接完毕! 处理分片张数: \(images.count), 目标图片尺寸: \(finalSize.width) x \(finalSize.height)")
+        }
+        
+        return finalImage
     }
 }

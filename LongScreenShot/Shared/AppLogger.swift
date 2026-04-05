@@ -5,6 +5,7 @@ class AppLogger {
     
     private let logFileURL: URL
     private let queue = DispatchQueue(label: "com.syl.LongScreenShot.AppLogger")
+    private var fileHandle: FileHandle?
     
     init() {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -15,31 +16,37 @@ class AppLogger {
            let size = attrs[.size] as? UInt64, size > 1024 * 1024 {
             try? FileManager.default.removeItem(at: logFileURL)
         }
+        
+        if !FileManager.default.fileExists(atPath: logFileURL.path) {
+            FileManager.default.createFile(atPath: logFileURL.path, contents: nil, attributes: nil)
+        }
+        
+        fileHandle = try? FileHandle(forWritingTo: logFileURL)
+        if #available(iOS 13.4, *) {
+            try? fileHandle?.seekToEnd()
+        } else {
+            fileHandle?.seekToEndOfFile()
+        }
     }
     
-    func log(_ message: String) {
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        let timeString = formatter.string(from: Date())
+        return formatter
+    }()
+    
+    func log(_ message: String) {
+        let timeString = AppLogger.dateFormatter.string(from: Date())
         let formattedMessage = "[\(timeString)] \(message)\n"
         
         print(formattedMessage, terminator: "")
         
         queue.async {
             guard let data = formattedMessage.data(using: .utf8) else { return }
-            if FileManager.default.fileExists(atPath: self.logFileURL.path) {
-                if let fileHandle = try? FileHandle(forWritingTo: self.logFileURL) {
-                    if #available(iOS 13.4, *) {
-                        try? fileHandle.seekToEnd()
-                        try? fileHandle.write(contentsOf: data)
-                    } else {
-                        fileHandle.seekToEndOfFile()
-                        fileHandle.write(data)
-                    }
-                    try? fileHandle.close()
-                }
+            if #available(iOS 13.4, *) {
+                try? self.fileHandle?.write(contentsOf: data)
             } else {
-                try? data.write(to: self.logFileURL)
+                self.fileHandle?.write(data)
             }
         }
     }
