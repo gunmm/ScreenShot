@@ -437,7 +437,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     private func performSave(image: UIImage) {
         let handler: (PHAuthorizationStatus) -> Void = { status in
             if status == .authorized || status == .limited {
-                UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
+                DispatchQueue.main.async {
+                    UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
+                }
             } else {
                 DispatchQueue.main.async {
                     self.state = .failed(message: NSLocalizedString("相册权限被拒绝。可在系统设置中开启“照片-添加”。", comment: "Photo permission denied"))
@@ -494,18 +496,20 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-        if let error = error {
-            statusLabel.text = String(format: NSLocalizedString("保存出错: %@", comment: "Save error status"), error.localizedDescription)
-            
-            let alert = UIAlertController(title: NSLocalizedString("保存失败", comment: "Save error title"), message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
-            present(alert, animated: true)
-        } else {
-            statusLabel.text = NSLocalizedString("成功保存至相册!", comment: "Save success status")
-            
-            let alert = UIAlertController(title: NSLocalizedString("保存成功", comment: "Save success title"), message: NSLocalizedString("长截图已成功保存到相册。", comment: "Save success message"), preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
-            present(alert, animated: true)
+        DispatchQueue.main.async {
+            if let error = error {
+                self.statusLabel.text = String(format: NSLocalizedString("保存出错: %@", comment: "Save error status"), error.localizedDescription)
+                
+                let alert = UIAlertController(title: NSLocalizedString("保存失败", comment: "Save error title"), message: error.localizedDescription, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
+                self.present(alert, animated: true)
+            } else {
+                self.statusLabel.text = NSLocalizedString("成功保存至相册!", comment: "Save success status")
+                
+                let alert = UIAlertController(title: NSLocalizedString("保存成功", comment: "Save success title"), message: NSLocalizedString("长截图已成功保存到相册。", comment: "Save success message"), preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
+                self.present(alert, animated: true)
+            }
         }
     }
     
