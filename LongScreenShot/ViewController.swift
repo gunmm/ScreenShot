@@ -512,12 +512,39 @@ class ViewController: UIViewController, UIScrollViewDelegate {
                 self.statusLabel.text = NSLocalizedString("成功保存至相册!", comment: "Save success status")
                 
                 let alert = UIAlertController(title: NSLocalizedString("保存成功", comment: "Save success title"), message: NSLocalizedString("长截图已成功保存到相册。", comment: "Save success message"), preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
+                alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default, handler: { [weak self] _ in
+                    self?.showReviewPromptIfNeeded()
+                }))
                 self.present(alert, animated: true)
             }
         }
     }
     
+    // MARK: - Review Prompt
+    private func showReviewPromptIfNeeded() {
+        if UserDefaults.standard.bool(forKey: "hasReviewed") { return }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            guard let self = self else { return }
+            
+            let alert = UIAlertController(
+                title: NSLocalizedString("喜欢这个应用吗？", comment: "Review title"),
+                message: NSLocalizedString("如果这个应用对您有帮助，请给个好评支持一下开发者，感谢！", comment: "Review message"),
+                preferredStyle: .alert
+            )
+            
+            alert.addAction(UIAlertAction(title: NSLocalizedString("以后再说", comment: "Later action"), style: .cancel))
+            alert.addAction(UIAlertAction(title: NSLocalizedString("去给好评", comment: "Go review action"), style: .default, handler: { _ in
+                UserDefaults.standard.set(true, forKey: "hasReviewed")
+                if let url = URL(string: "https://apps.apple.com/app/id6759634662?action=write-review") {
+                    UIApplication.shared.open(url)
+                }
+            }))
+            
+            self.present(alert, animated: true)
+        }
+    }
+
 #if DEBUG
     @objc private func showPreview() {
         let vc = ChunksPreviewViewController()

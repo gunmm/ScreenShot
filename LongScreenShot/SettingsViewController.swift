@@ -55,21 +55,31 @@ class SettingsViewController: UIViewController {
     func addPremiumButton() {
         view.addSubview(premiumButton)
         view.addSubview(restoreButton)
-        view.addSubview(feedbackButton)
         
         premiumButton.translatesAutoresizingMaskIntoConstraints = false
         restoreButton.translatesAutoresizingMaskIntoConstraints = false
-        feedbackButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        // 放大主按钮的字号
+        feedbackButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        
+        let stackView = UIStackView(arrangedSubviews: [reviewButton, tipButton, feedbackButton])
+        stackView.axis = .vertical
+        stackView.spacing = 30
+        stackView.alignment = .center
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
         
         NSLayoutConstraint.activate([
-            premiumButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            premiumButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            // Center top buttons
+            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60),
             
-            restoreButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            restoreButton.topAnchor.constraint(equalTo: premiumButton.bottomAnchor, constant: 10),
+            // Bottom left
+            premiumButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            premiumButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             
-            feedbackButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            feedbackButton.topAnchor.constraint(equalTo: restoreButton.bottomAnchor, constant: 20)
+            restoreButton.leadingAnchor.constraint(equalTo: premiumButton.leadingAnchor),
+            restoreButton.bottomAnchor.constraint(equalTo: premiumButton.topAnchor, constant: -16)
         ])
     }
     
@@ -104,13 +114,40 @@ class SettingsViewController: UIViewController {
         }
     }
     
-    // MARK: - Feedback Button
+    // MARK: - Center Buttons
+    
+    private lazy var reviewButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(NSLocalizedString("⭐️ 好评", comment: "Review button"), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        button.addTarget(self, action: #selector(reviewButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc private func reviewButtonTapped() {
+        if let url = URL(string: "https://apps.apple.com/app/id6759634662?action=write-review") {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    private lazy var tipButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(NSLocalizedString("❤️ 打赏", comment: "Tip button"), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        button.addTarget(self, action: #selector(tipButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc private func tipButtonTapped() {
+        let vc = TipViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        present(nav, animated: true)
+    }
     
     private lazy var feedbackButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle(NSLocalizedString("用户反馈与求助", comment: "Feedback button"), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 14)
-        button.tintColor = .systemTeal
+        button.setTitle(NSLocalizedString("💬 反馈与求助", comment: "Feedback button"), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
         button.addTarget(self, action: #selector(feedbackButtonTapped), for: .touchUpInside)
         return button
     }()
