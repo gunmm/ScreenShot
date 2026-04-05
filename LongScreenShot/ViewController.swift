@@ -55,7 +55,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         state = .idle
         
         // Auto-stitch if chunks exist on load
-        autoGenerateIfPossible()
+//        autoGenerateIfPossible()
         
         // Auto-stitch when returning from background
         NotificationCenter.default.addObserver(self, selector: #selector(autoGenerateIfPossible), name: UIApplication.willEnterForegroundNotification, object: nil)
