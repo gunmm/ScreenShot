@@ -76,9 +76,12 @@ class FeedbackViewController: UIViewController {
                     }))
                     self?.present(alert, animated: true)
                 } else {
-                    let errorMessage = error?.localizedDescription ?? "未知错误"
+                    let errorMessage = error?.localizedDescription ?? NSLocalizedString("未知错误", comment: "")
                     let alert = UIAlertController(title: NSLocalizedString("提交失败", comment: ""), message: errorMessage, preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: ""), style: .default))
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("重试", comment: ""), style: .default, handler: { [weak self] _ in
+                        self?.submitTapped()
+                    }))
+                    alert.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: ""), style: .cancel))
                     self?.present(alert, animated: true)
                 }
             }
