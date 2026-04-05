@@ -55,16 +55,21 @@ class SettingsViewController: UIViewController {
     func addPremiumButton() {
         view.addSubview(premiumButton)
         view.addSubview(restoreButton)
+        view.addSubview(feedbackButton)
         
         premiumButton.translatesAutoresizingMaskIntoConstraints = false
         restoreButton.translatesAutoresizingMaskIntoConstraints = false
+        feedbackButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             premiumButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             premiumButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
             restoreButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            restoreButton.topAnchor.constraint(equalTo: premiumButton.bottomAnchor, constant: 10)
+            restoreButton.topAnchor.constraint(equalTo: premiumButton.bottomAnchor, constant: 10),
+            
+            feedbackButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            feedbackButton.topAnchor.constraint(equalTo: restoreButton.bottomAnchor, constant: 20)
         ])
     }
     
@@ -97,5 +102,22 @@ class SettingsViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    // MARK: - Feedback Button
+    
+    private lazy var feedbackButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(NSLocalizedString("用户反馈与求助", comment: "Feedback button"), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 14)
+        button.tintColor = .systemTeal
+        button.addTarget(self, action: #selector(feedbackButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc private func feedbackButtonTapped() {
+        let vc = FeedbackViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        present(nav, animated: true)
     }
 }

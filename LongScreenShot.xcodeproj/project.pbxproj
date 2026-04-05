@@ -7,11 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		010249DA8E57ADBCB316C216 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
+		05444238BECB6110D727F0AB /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
+		0FFD44A885F6180286428219 /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
+		3EC1439FB39C857C0A3636C5 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
+		4DE24A22852C26C86F369EA0 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
+		4FE54E188D4BE84BBD03B0CB /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
+		54EE44BC8EE3F35C4002C3B0 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
+		5D034F758AD0B619501E3BAC /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
+		66BD4E27A41D27979C8CA0B7 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
+		69814177B55367E2C00A832C /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
+		6D8045AE8E697C0809D1197A /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
+		85994CB8A5170F5CFD1B1A39 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
+		88DA4E7081E0C32CEC21E5D2 /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
+		C6854528A5D9A071B896DD14 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
 		CDE361792F24980B0020E3EF /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE361782F24980B0020E3EF /* ReplayKit.framework */; };
 		CDE361832F24980B0020E3EF /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE361782F24980B0020E3EF /* ReplayKit.framework */; };
 		CDE361852F24980B0020E3EF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE361842F24980B0020E3EF /* UIKit.framework */; };
 		CDE3618C2F24980B0020E3EF /* ScreenCaptureSetupUI.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDE361822F24980B0020E3EF /* ScreenCaptureSetupUI.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CDE3618F2F24980B0020E3EF /* ScreenCapture.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDE361762F24980B0020E3EF /* ScreenCapture.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F3684A8CB263BD7AA90B63EA /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,7 +76,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackViewController.swift; path = LongScreenShot/FeedbackViewController.swift; sourceTree = SOURCE_ROOT; };
+		40524BD6BE3AC857979782B2 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppLogger.swift; path = LongScreenShot/Shared/AppLogger.swift; sourceTree = SOURCE_ROOT; };
 		5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = PMConfig.xcconfig; sourceTree = "<group>"; };
+		70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CloudKitManager.swift; path = LongScreenShot/Shared/CloudKitManager.swift; sourceTree = SOURCE_ROOT; };
 		CDE361272F2493370020E3EF /* LongScreenShot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LongScreenShot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDE3613D2F2493380020E3EF /* LongScreenShotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LongScreenShotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDE361472F2493380020E3EF /* LongScreenShotUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LongScreenShotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -196,6 +214,9 @@
 				CDE361772F24980B0020E3EF /* Frameworks */,
 				CDE361282F2493370020E3EF /* Products */,
 				5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */,
+				40524BD6BE3AC857979782B2 /* AppLogger.swift */,
+				70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */,
+				208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -425,6 +446,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EC1439FB39C857C0A3636C5 /* AppLogger.swift in Sources */,
+				4DE24A22852C26C86F369EA0 /* CloudKitManager.swift in Sources */,
+				F3684A8CB263BD7AA90B63EA /* FeedbackViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -432,6 +456,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D8045AE8E697C0809D1197A /* AppLogger.swift in Sources */,
+				C6854528A5D9A071B896DD14 /* CloudKitManager.swift in Sources */,
+				88DA4E7081E0C32CEC21E5D2 /* FeedbackViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,6 +466,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				85994CB8A5170F5CFD1B1A39 /* AppLogger.swift in Sources */,
+				5D034F758AD0B619501E3BAC /* CloudKitManager.swift in Sources */,
+				0FFD44A885F6180286428219 /* FeedbackViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -446,6 +476,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				69814177B55367E2C00A832C /* AppLogger.swift in Sources */,
+				010249DA8E57ADBCB316C216 /* CloudKitManager.swift in Sources */,
+				05444238BECB6110D727F0AB /* FeedbackViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,6 +486,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54EE44BC8EE3F35C4002C3B0 /* AppLogger.swift in Sources */,
+				66BD4E27A41D27979C8CA0B7 /* CloudKitManager.swift in Sources */,
+				4FE54E188D4BE84BBD03B0CB /* FeedbackViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

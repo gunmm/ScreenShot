@@ -435,12 +435,15 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     private func performSave(image: UIImage) {
+        AppLogger.shared.log("Requesting photo authorization...")
         let handler: (PHAuthorizationStatus) -> Void = { status in
             if status == .authorized || status == .limited {
+                AppLogger.shared.log("Photo authorization granted. Dispatching save to main thread.")
                 DispatchQueue.main.async {
                     UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
                 }
             } else {
+                AppLogger.shared.log("Photo authorization denied by user.")
                 DispatchQueue.main.async {
                     self.state = .failed(message: NSLocalizedString("相册权限被拒绝。可在系统设置中开启“照片-添加”。", comment: "Photo permission denied"))
                     self.presentPhotoPermissionAlert()
@@ -498,12 +501,14 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         DispatchQueue.main.async {
             if let error = error {
+                AppLogger.shared.log("Failed to save photo: \(error.localizedDescription)")
                 self.statusLabel.text = String(format: NSLocalizedString("保存出错: %@", comment: "Save error status"), error.localizedDescription)
                 
                 let alert = UIAlertController(title: NSLocalizedString("保存失败", comment: "Save error title"), message: error.localizedDescription, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
                 self.present(alert, animated: true)
             } else {
+                AppLogger.shared.log("Successfully saved photo to album.")
                 self.statusLabel.text = NSLocalizedString("成功保存至相册!", comment: "Save success status")
                 
                 let alert = UIAlertController(title: NSLocalizedString("保存成功", comment: "Save success title"), message: NSLocalizedString("长截图已成功保存到相册。", comment: "Save success message"), preferredStyle: .alert)

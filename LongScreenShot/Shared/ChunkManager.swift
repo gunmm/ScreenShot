@@ -31,9 +31,9 @@ class ChunkManager {
         
         do {
             try data.write(to: fileURL)
-            print("Saved chunk: \(filename)")
+            AppLogger.shared.log("Saved chunk: \(filename)")
         } catch {
-            print("Error saving chunk: \(error)")
+            AppLogger.shared.log("Error saving chunk: \(error)")
         }
     }
     
@@ -63,7 +63,7 @@ class ChunkManager {
             }
             return result
         } catch {
-            print("Error loading chunks: \(error)")
+            AppLogger.shared.log("Error loading chunks: \(error)")
             return []
         }
     }

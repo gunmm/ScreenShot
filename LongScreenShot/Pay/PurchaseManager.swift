@@ -38,14 +38,17 @@ class PurchaseManager: NSObject {
     
     // 请求支付
     func requestPurchase(completion: @escaping (Bool) -> Void) {
+        AppLogger.shared.log("requestPurchase: Starting purchase request for \(productId)")
         guard !isPurchased() else {
             // 如果已付费，直接返回成功
+            AppLogger.shared.log("requestPurchase: Already purchased, returning true")
             completion(true)
             return
         }
         
         // 检查是否可以发起支付
         guard SKPaymentQueue.canMakePayments() else {
+            AppLogger.shared.log("requestPurchase: Device cannot make payments")
             DispatchQueue.main.async {
                 self.showAlert(title: "无法支付", message: "您的设备不支持应用内购买")
             }
@@ -63,6 +66,7 @@ class PurchaseManager: NSObject {
     
     // 恢复购买
     func restorePurchases(completion: @escaping (Bool) -> Void) {
+        AppLogger.shared.log("restorePurchases: Requesting restore completed transactions")
         purchaseCompletion = completion
         SKPaymentQueue.default().restoreCompletedTransactions()
     }
@@ -91,6 +95,7 @@ class PurchaseManager: NSObject {
 extension PurchaseManager: SKProductsRequestDelegate {
     func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
         guard let product = response.products.first else {
+            AppLogger.shared.log("productsRequest: Failed to retrieve product info (array empty)")
             DispatchQueue.main.async {
                 self.showAlert(title: "支付失败", message: "无法获取商品信息")
             }
@@ -99,12 +104,15 @@ extension PurchaseManager: SKProductsRequestDelegate {
             return
         }
         
+        AppLogger.shared.log("productsRequest: Successfully loaded product \(product.productIdentifier). Adding payment.")
+        
         // 发起支付
         let payment = SKPayment(product: product)
         SKPaymentQueue.default().add(payment)
     }
     
     func request(_ request: SKRequest, didFailWithError error: Error) {
+        AppLogger.shared.log("productsRequest: App Store request failed with error: \(error.localizedDescription)")
         DispatchQueue.main.async {
             self.showAlert(title: "支付失败", message: error.localizedDescription)
         }
@@ -119,16 +127,19 @@ extension PurchaseManager: SKPaymentTransactionObserver {
         for transaction in transactions {
             switch transaction.transactionState {
             case .purchased:
+                AppLogger.shared.log("paymentQueue: Transaction state = .purchased for \(transaction.payment.productIdentifier)")
                 // 支付成功
                 handlePurchaseSuccess(transaction: transaction)
                 queue.finishTransaction(transaction)
                 
             case .failed:
+                AppLogger.shared.log("paymentQueue: Transaction state = .failed for \(transaction.payment.productIdentifier), error: \(transaction.error?.localizedDescription ?? "null")")
                 // 支付失败
                 handlePurchaseFailure(transaction: transaction)
                 queue.finishTransaction(transaction)
                 
             case .restored:
+                AppLogger.shared.log("paymentQueue: Transaction state = .restored for \(transaction.payment.productIdentifier)")
                 // 恢复购买
                 handlePurchaseRestored(transaction: transaction)
                 queue.finishTransaction(transaction)
@@ -144,6 +155,7 @@ extension PurchaseManager: SKPaymentTransactionObserver {
     }
     
     func paymentQueueRestoreCompletedTransactionsFinished(_ queue: SKPaymentQueue) {
+        AppLogger.shared.log("paymentQueueRestoreCompletedTransactionsFinished: Finished traversing. isPurchased = \(purchaseStatusManager.isPurchased())")
         // 恢复购买完成
         if purchaseStatusManager.isPurchased() {
             purchaseCompletion?(true)
@@ -157,6 +169,7 @@ extension PurchaseManager: SKPaymentTransactionObserver {
     }
     
     func paymentQueue(_ queue: SKPaymentQueue, restoreCompletedTransactionsFailedWithError error: Error) {
+        AppLogger.shared.log("restoreCompletedTransactionsFailedWithError: \(error.localizedDescription)")
         DispatchQueue.main.async {
             self.showAlert(title: "恢复购买失败", message: error.localizedDescription)
         }
