@@ -422,7 +422,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         let isTrialExpired = statusManager.isTrialExpired()
         
         if isTrialExpired && !isPurchased {
-            let alert = UIAlertController(title: NSLocalizedString("提示", comment: "Alert title prompt"), message: NSLocalizedString("免费使用一周，只需支付8元即可无限使用，感谢支持", comment: "Trial expired message"), preferredStyle: .alert)
+            let alert = UIAlertController(title: NSLocalizedString("提示", comment: "Alert title prompt"), message: NSLocalizedString("免费使用一周，只需支付18元即可无限使用，感谢支持", comment: "Trial expired message"), preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel action"), style: .cancel))
             alert.addAction(UIAlertAction(title: NSLocalizedString("去解锁", comment: "Unlock action"), style: .default, handler: { [weak self] _ in
                 self?.requestPurchaseAndSave()

@@ -13,7 +13,7 @@
 "拼接失败。\n建议：\n- 滚动更慢、更连续\n- 避免大面积动态内容（视频/强动画）\n- 点 Debug 预览分片确认内容是否连续" = "Stitching failed.\nTips:\n- Scroll slower and more continuously\n- Avoid dynamic content (video/strong animation)\n- Debug to preview chunks and check continuity";
 "根据新裁剪参数拼接失败。" = "Stitching failed with new cropping parameters.";
 "提示" = "Notice";
-"免费使用一周，只需支付8元即可无限使用，感谢支持" = "Free trial for a week. Pay only $1.99 for unlimited access. Thank you for your support.";
+"免费使用一周，只需支付18元即可无限使用，感谢支持" = "Free trial for a week. Pay only $2.99 for unlimited access. Thank you for your support.";
 "取消" = "Cancel";
 "去解锁" = "Unlock Now";
 "相册权限被拒绝。可在系统设置中开启“照片-添加”。" = "Photo permission denied. Please enable 'Photos - Add' in Settings.";
