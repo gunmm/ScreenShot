@@ -8,4 +8,5 @@
 ## 规格索引
 
 - `long-screenshot.md`：LongScreenShot 端到端规格（采集、分片、拼接、保存）
+- `settings-ui.md`：设置页布局与外链入口（含使用演示视频）
 
