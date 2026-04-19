@@ -8,6 +8,9 @@
 import UIKit
 
 class SettingsViewController: UIViewController {
+
+    /// 使用演示视频链接（在系统浏览器中打开）。
+    private static let usageDemoVideoURLString = "https://b23.tv/3Byo2uC"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,7 +65,7 @@ class SettingsViewController: UIViewController {
         // 放大主按钮的字号
         feedbackButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
         
-        let stackView = UIStackView(arrangedSubviews: [reviewButton, tipButton, feedbackButton])
+        let stackView = UIStackView(arrangedSubviews: [reviewButton, tipButton, feedbackButton, demoVideoButton])
         stackView.axis = .vertical
         stackView.spacing = 30
         stackView.alignment = .center
@@ -156,5 +159,18 @@ class SettingsViewController: UIViewController {
         let vc = FeedbackViewController()
         let nav = UINavigationController(rootViewController: vc)
         present(nav, animated: true)
+    }
+
+    private lazy var demoVideoButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(NSLocalizedString("🎬 使用演示", comment: "Open usage demo video in browser"), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        button.addTarget(self, action: #selector(demoVideoButtonTapped), for: .touchUpInside)
+        return button
+    }()
+
+    @objc private func demoVideoButtonTapped() {
+        guard let url = URL(string: Self.usageDemoVideoURLString) else { return }
+        UIApplication.shared.open(url)
     }
 }
