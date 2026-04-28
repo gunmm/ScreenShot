@@ -161,7 +161,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         editButton.isEnabled = false
         
         saveButton.setTitle(NSLocalizedString("保存", comment: "Save button"), for: .normal)
-        saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
+        saveButton.addTarget(self, action: #selector(showSaveOptions), for: .touchUpInside)
         saveButton.isEnabled = false
         
         unlockProButton.setTitle(NSLocalizedString("去水印", comment: "Unlock Pro button"), for: .normal)
@@ -476,11 +476,92 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    @objc private func saveToPhotos() {
+    @objc private func showSaveOptions() {
         guard let image = imageView.image else { return }
         
-        // imageView.image already contains the full-screen watermark if unpaid
-        performSave(image: image)
+        let actionSheet = UIAlertController(title: nil, message: NSLocalizedString("选择导出格式", comment: "Choose export format"), preferredStyle: .actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("保存图片到相册", comment: "Save Image to Photos"), style: .default, handler: { [weak self] _ in
+            self?.performSave(image: image)
+        }))
+        
+        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("分享为 PDF", comment: "Share as PDF"), style: .default, handler: { [weak self] _ in
+            self?.generatePDFAndShare(image: image)
+        }))
+        
+        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel"), style: .cancel))
+        
+        if let popover = actionSheet.popoverPresentationController {
+            popover.sourceView = saveButton
+            popover.sourceRect = saveButton.bounds
+        }
+        
+        present(actionSheet, animated: true)
+    }
+    
+    private func generatePDFAndShare(image: UIImage) {
+        let loadingAlert = UIAlertController(title: nil, message: NSLocalizedString("正在生成 PDF...", comment: "Generating PDF loading"), preferredStyle: .alert)
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = .medium
+        loadingIndicator.startAnimating()
+        loadingAlert.view.addSubview(loadingIndicator)
+        
+        present(loadingAlert, animated: true) {
+            DispatchQueue.global(qos: .userInitiated).async {
+                let pdfData = self.createPDFData(from: image)
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyyMMdd_HHmmss"
+                let fileName = "LongScreenshot_\(dateFormatter.string(from: Date())).pdf"
+                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                
+                do {
+                    try pdfData.write(to: tempURL)
+                    
+                    DispatchQueue.main.async {
+                        loadingAlert.dismiss(animated: true) {
+                            self.sharePDF(fileURL: tempURL)
+                        }
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        loadingAlert.dismiss(animated: true) {
+                            self.state = .failed(message: NSLocalizedString("生成 PDF 失败", comment: "Failed to generate PDF"))
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private func createPDFData(from image: UIImage) -> Data {
+        let pdfMetaData = [
+            kCGPDFContextCreator: "Rolling Long Screenshot",
+            kCGPDFContextAuthor: "User"
+        ]
+        let format = UIGraphicsPDFRendererFormat()
+        format.documentInfo = pdfMetaData as [String: Any]
+        
+        let pageRect = CGRect(origin: .zero, size: image.size)
+        let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
+        
+        let pdfData = renderer.pdfData { (context) in
+            context.beginPage()
+            image.draw(in: pageRect)
+        }
+        return pdfData
+    }
+    
+    private func sharePDF(fileURL: URL) {
+        let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+        
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = saveButton
+            popover.sourceRect = saveButton.bounds
+        }
+        
+        present(activityVC, animated: true)
     }
     
     @objc private func unlockProTapped() {
