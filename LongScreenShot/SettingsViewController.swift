@@ -35,31 +35,10 @@ class SettingsViewController: UIViewController {
         dismiss(animated: true)
     }
     
-    // MARK: - Premium Button
-    
-    private lazy var premiumButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(NSLocalizedString("放弃免费使用时间", comment: "Give up trial time button"), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 14)
-        button.tintColor = .systemRed
-        button.addTarget(self, action: #selector(premiumButtonTapped), for: .touchUpInside)
-        return button
-    }()
-    
-    @objc private func premiumButtonTapped() {
-        PurchaseStatusManager.shared.setTrialExpirationDate(Date())
-        
-        let alert = UIAlertController(title: NSLocalizedString("提示", comment: "Alert title prompt"), message: NSLocalizedString("免费试用已结束，当前状态已重置为过期", comment: "Trial ended message"), preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
-        present(alert, animated: true)
-    }
-
     // Adding button to setupUI
     func addPremiumButton() {
-        view.addSubview(premiumButton)
         view.addSubview(restoreButton)
         
-        premiumButton.translatesAutoresizingMaskIntoConstraints = false
         restoreButton.translatesAutoresizingMaskIntoConstraints = false
         
         // 放大主按钮的字号
@@ -78,11 +57,8 @@ class SettingsViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60),
             
             // Bottom left
-            premiumButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            premiumButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            
-            restoreButton.leadingAnchor.constraint(equalTo: premiumButton.leadingAnchor),
-            restoreButton.bottomAnchor.constraint(equalTo: premiumButton.topAnchor, constant: -16)
+            restoreButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            restoreButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
     }
     

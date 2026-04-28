@@ -22,6 +22,19 @@ class ChunkManager {
         }
     }
     
+    func clearAllChunks() {
+        guard let dir = AppGroupConfig.chunkDirectoryURL else { return }
+        do {
+            let fileURLs = try FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
+            for url in fileURLs {
+                try FileManager.default.removeItem(at: url)
+            }
+            AppLogger.shared.log("Cleared all chunks.")
+        } catch {
+            AppLogger.shared.log("Error clearing chunks: \(error)")
+        }
+    }
+    
     func saveChunk(image: UIImage, index: Int) {
         guard let data = image.jpegData(compressionQuality: 0.8) else { return }
         guard let dir = AppGroupConfig.chunkDirectoryURL else { return }
