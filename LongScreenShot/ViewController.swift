@@ -16,8 +16,12 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     private let settingsButton = UIButton(type: .system) // Top right settings button
     private let editButton = UIButton(type: .system) // Edit button
     private let saveButton = UIButton(type: .system)
+    private let unlockProButton = UIButton(type: .system) // New unlock button
+    private var rawStitchedImage: UIImage? // Store raw image without watermark
     private let statusLabel = UILabel()
     private let guideLabel = UILabel()
+    private let demoButton = UIButton(type: .system)
+    private let clearButton = UIButton(type: .system)
     
     private let actionsStack = UIStackView()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
@@ -51,6 +55,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+//        PurchaseStatusManager.shared.setPurchased(false)
         setupUI()
         state = .idle
         
@@ -59,9 +64,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         // Auto-stitch when returning from background
         NotificationCenter.default.addObserver(self, selector: #selector(autoGenerateIfPossible), name: UIApplication.willEnterForegroundNotification, object: nil)
-        
-        let statusManager = PurchaseStatusManager.shared
-        let isTrialExpired = statusManager.isTrialExpired()
     }
     
     deinit {
@@ -129,6 +131,12 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         guideLabel.numberOfLines = 0
         guideLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(guideLabel)
+        
+        demoButton.setTitle(NSLocalizedString("视频演示", comment: "Video demo"), for: .normal)
+        demoButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
+        demoButton.addTarget(self, action: #selector(openDemoVideo), for: .touchUpInside)
+        demoButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(demoButton)
                 
         // 4. Settings Button
         let config = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
@@ -137,6 +145,14 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         settingsButton.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
         settingsButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(settingsButton)
+        
+        // 4.1 Clear Button
+        let clearConfig = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular)
+        clearButton.setImage(UIImage(systemName: "trash", withConfiguration: clearConfig), for: .normal)
+        clearButton.tintColor = .systemRed
+        clearButton.addTarget(self, action: #selector(clearDataTapped), for: .touchUpInside)
+        clearButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(clearButton)
         
         // 5. Edit / Save Buttons
         
@@ -147,6 +163,14 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         saveButton.setTitle(NSLocalizedString("保存", comment: "Save button"), for: .normal)
         saveButton.addTarget(self, action: #selector(saveToPhotos), for: .touchUpInside)
         saveButton.isEnabled = false
+        
+        unlockProButton.setTitle(NSLocalizedString("去水印", comment: "Unlock Pro button"), for: .normal)
+        unlockProButton.setTitleColor(.systemBlue, for: .normal)
+        unlockProButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        unlockProButton.addTarget(self, action: #selector(unlockProTapped), for: .touchUpInside)
+        unlockProButton.isHidden = PurchaseStatusManager.shared.isPurchased()
+        unlockProButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(unlockProButton)
         
         editButton.translatesAutoresizingMaskIntoConstraints = false
         saveButton.translatesAutoresizingMaskIntoConstraints = false
@@ -187,6 +211,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         activityIndicator.color = .gray
         view.addSubview(activityIndicator)
         
+        // Ensure unlockProButton is above scrollView
+        view.bringSubviewToFront(unlockProButton)
+        
         var constraints: [NSLayoutConstraint] = [
             recordContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             recordContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -209,11 +236,19 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             settingsButton.widthAnchor.constraint(equalToConstant: 44),
             settingsButton.heightAnchor.constraint(equalToConstant: 44),
             
+            clearButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            clearButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            clearButton.widthAnchor.constraint(equalToConstant: 44),
+            clearButton.heightAnchor.constraint(equalToConstant: 44),
+            
             stitchButton.topAnchor.constraint(equalTo: recordContainer.bottomAnchor, constant: 24),
             stitchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             guideLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             guideLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            demoButton.topAnchor.constraint(equalTo: guideLabel.topAnchor, constant: -6),
+            demoButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
             statusLabel.topAnchor.constraint(equalTo: guideLabel.bottomAnchor, constant: 12),
             statusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -223,6 +258,11 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             actionsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             actionsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             actionsStack.heightAnchor.constraint(equalToConstant: 44),
+            
+            unlockProButton.bottomAnchor.constraint(equalTo: actionsStack.topAnchor, constant: -16),
+            unlockProButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            unlockProButton.heightAnchor.constraint(equalToConstant: 32),
+            unlockProButton.widthAnchor.constraint(equalToConstant: 76),
             
             scrollView.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 20),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -241,9 +281,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
 #if DEBUG
         constraints.append(contentsOf: [
-            previewButton.topAnchor.constraint(equalTo: stitchButton.bottomAnchor, constant: 10),
-            previewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            guideLabel.topAnchor.constraint(equalTo: previewButton.bottomAnchor, constant: 12)
+            previewButton.centerYAnchor.constraint(equalTo: stitchButton.centerYAnchor),
+            previewButton.leadingAnchor.constraint(equalTo: stitchButton.trailingAnchor, constant: 16),
+            guideLabel.topAnchor.constraint(equalTo: stitchButton.bottomAnchor, constant: 12)
         ])
 #else
         constraints.append(
@@ -353,6 +393,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         }
         
         display(image: nil)
+        rawStitchedImage = nil
         state = .generating(frameCount: chunks.count)
         
         // Run on background thread to avoid blocking UI
@@ -362,7 +403,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             
             DispatchQueue.main.async {
                 if let result = stitchedImage {
-                    self.display(image: result)
+                    self.rawStitchedImage = result
+                    let displayImage = PurchaseStatusManager.shared.isPurchased() ? result : self.addFullScreenWatermark(to: result)
+                    self.display(image: displayImage)
                     self.state = .generated(size: result.size, images: chunks, ranges: ranges)
                 } else {
                     self.state = .failed(message: NSLocalizedString("""
@@ -381,6 +424,24 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         let settingsVC = SettingsViewController()
         let nav = UINavigationController(rootViewController: settingsVC)
         present(nav, animated: true)
+    }
+    
+    @objc private func clearDataTapped() {
+        let alert = UIAlertController(title: NSLocalizedString("清理数据", comment: "Clear data title"), message: NSLocalizedString("确定要清理当前的截图数据吗？此操作不可撤销。", comment: "Clear data message"), preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel"), style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("清理", comment: "Clear"), style: .destructive, handler: { [weak self] _ in
+            ChunkManager.shared.clearAllChunks()
+            self?.display(image: nil)
+            self?.rawStitchedImage = nil
+            self?.state = .idle
+        }))
+        present(alert, animated: true)
+    }
+    
+    @objc private func openDemoVideo() {
+        if let url = URL(string: "https://b23.tv/3Byo2uC") {
+            UIApplication.shared.open(url)
+        }
     }
     
     @objc private func editResult() {
@@ -404,7 +465,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             
             DispatchQueue.main.async {
                 if let result = stitchedImage {
-                    self.display(image: result)
+                    self.rawStitchedImage = result
+                    let displayImage = PurchaseStatusManager.shared.isPurchased() ? result : self.addFullScreenWatermark(to: result)
+                    self.display(image: displayImage)
                     self.state = .generated(size: result.size, images: images, ranges: newRanges)
                 } else {
                     self.state = .failed(message: NSLocalizedString("根据新裁剪参数拼接失败。", comment: "Error editing failed"))
@@ -416,22 +479,120 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     @objc private func saveToPhotos() {
         guard let image = imageView.image else { return }
         
-        let statusManager = PurchaseStatusManager.shared
-//        statusManager.setPurchased(false)
-        let isPurchased = statusManager.isPurchased()
-        let isTrialExpired = statusManager.isTrialExpired()
+        // imageView.image already contains the full-screen watermark if unpaid
+        performSave(image: image)
+    }
+    
+    @objc private func unlockProTapped() {
+        let alert = UIAlertController(
+            title: NSLocalizedString("解锁 Pro 权限", comment: "Unlock Pro title"),
+            message: NSLocalizedString("只需支付 18 元即可解锁永久 Pro 权限，感谢支持", comment: "Unlock Pro message"),
+            preferredStyle: .alert
+        )
         
-        if isTrialExpired && !isPurchased {
-            let alert = UIAlertController(title: NSLocalizedString("提示", comment: "Alert title prompt"), message: NSLocalizedString("免费使用一周，只需支付18元即可无限使用，感谢支持", comment: "Trial expired message"), preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel action"), style: .cancel))
-            alert.addAction(UIAlertAction(title: NSLocalizedString("去解锁", comment: "Unlock action"), style: .default, handler: { [weak self] _ in
-                self?.requestPurchaseAndSave()
-            }))
-            present(alert, animated: true)
-            return
+        alert.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel action"), style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("去支付", comment: "Pay action"), style: .default, handler: { [weak self] _ in
+            self?.performPurchase()
+        }))
+        
+        present(alert, animated: true)
+    }
+    
+    private func performPurchase() {
+        let loadingAlert = UIAlertController(title: nil, message: NSLocalizedString("正在请求支付...", comment: "Requesting purchase loading"), preferredStyle: .alert)
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = .medium
+        loadingIndicator.startAnimating()
+        loadingAlert.view.addSubview(loadingIndicator)
+        
+        present(loadingAlert, animated: true) {
+            PurchaseManager.shared.requestPurchase { [weak self] success in
+                DispatchQueue.main.async {
+                    loadingAlert.dismiss(animated: true) {
+                        if success {
+                            self?.unlockProButton.isHidden = true
+                            if let raw = self?.rawStitchedImage {
+                                self?.display(image: raw)
+                            }
+                            
+                            let successAlert = UIAlertController(title: NSLocalizedString("购买成功", comment: "Purchase success title"), message: NSLocalizedString("感谢您的支持！", comment: "Purchase success message"), preferredStyle: .alert)
+                            successAlert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
+                            self?.present(successAlert, animated: true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private func addFullScreenWatermark(to image: UIImage) -> UIImage {
+        let size = image.size
+        let scale = image.scale
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        image.draw(in: CGRect(origin: .zero, size: size))
+        
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return image
         }
         
-        performSave(image: image)
+        let text = NSLocalizedString("来自：滚动长截屏-滚动长截图", comment: "Watermark text")
+        let font = UIFont.systemFont(ofSize: max(30, size.width * 0.05), weight: .bold)
+        
+        // 第一步：将文字在一个不透明的独立画布上画成图片（先画描边，再画实心）
+        // 这样可以彻底解决文字笔画内部重叠、以及半透明描边穿透的问题，实现完美的“一体化”
+        let strokeAttributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .strokeColor: UIColor(white: 0.4, alpha: 1.0), // 将外轮廓改成浅灰色，降低对比度
+            .strokeWidth: 4.0 // 正数表示只画描边
+        ]
+        
+        let fillAttributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: UIColor.white // 纯白字芯
+        ]
+        
+        let textSize = text.size(withAttributes: strokeAttributes)
+        let padding: CGFloat = 8.0
+        let tileSize = CGSize(width: textSize.width + padding * 2, height: textSize.height + padding * 2)
+        
+        UIGraphicsBeginImageContextWithOptions(tileSize, false, scale)
+        text.draw(at: CGPoint(x: padding, y: padding), withAttributes: strokeAttributes)
+        text.draw(at: CGPoint(x: padding, y: padding), withAttributes: fillAttributes)
+        let tileImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        guard let tile = tileImage else { return image }
+        
+        // 第二步：将生成的单图 Tile 以较低的透明度全屏平铺
+        let angle = -CGFloat.pi / 6 // -30 degrees
+        
+        let stepX: CGFloat = tileSize.width + 100
+        let stepY: CGFloat = tileSize.height + 150
+        
+        let diag = sqrt(size.width * size.width + size.height * size.height)
+        let startX = -diag
+        let startY = -diag
+        
+        context.saveGState()
+        context.translateBy(x: size.width / 2, y: size.height / 2)
+        context.rotate(by: angle)
+        context.translateBy(x: -size.width / 2, y: -size.height / 2)
+        
+        for y in stride(from: startY, to: size.height + diag, by: stepY) {
+            for x in stride(from: startX, to: size.width + diag, by: stepX) {
+                // 明确使用 UIImage 的自带 alpha 绘制方法，确保系统强制生效
+                tile.draw(at: CGPoint(x: x, y: y), blendMode: .normal, alpha: 0.18)
+            }
+        }
+        
+        context.restoreGState()
+        
+        let watermarkedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return watermarkedImage ?? image
     }
     
     private func performSave(image: UIImage) {
