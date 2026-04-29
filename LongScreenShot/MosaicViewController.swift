@@ -5,11 +5,15 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
 
     private static let maximumZoomScale: CGFloat = 4.0
     private static let defaultMosaicBlockSize: CGFloat = 18.0
-    private static let minimumBrushWidth: CGFloat = 10.0
-    private static let maximumBrushWidth: CGFloat = 100.0
-    private static let defaultBrushWidth: CGFloat = 42.0
-    private static let minimumOpacity: CGFloat = 0.2
+    private static let minimumBrushWidth: CGFloat = 1.0
+    private static let maximumBrushWidth: CGFloat = 80.0
+    private static let defaultBrushWidth: CGFloat = 35.0
+    private static let minimumOpacity: CGFloat = 0.1
     private static let defaultOpacity: CGFloat = 1.0
+    private static let magnifierSize = CGSize(width: 130.0, height: 130.0)
+    private static let magnifierInset: CGFloat = 12.0
+    private static let magnifierZoomScale: CGFloat = 1.0
+    private static let magnifierActivationDistance: CGFloat = 4.0
 
     private struct MosaicStroke {
         var points: [CGPoint]
@@ -39,6 +43,10 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
 
     private final class MosaicCanvasView: UIView {
 
+        var onSingleTouchBegan: ((CGPoint) -> Void)?
+        var onSingleTouchMoved: ((CGPoint) -> Void)?
+        var onSingleTouchEnded: (() -> Void)?
+
         var previewImage: UIImage? {
             didSet { setNeedsDisplay() }
         }
@@ -64,6 +72,40 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
 
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
+        }
+
+        override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            if isSingleTouchInteraction(touches, event: event), let point = touches.first?.location(in: self) {
+                onSingleTouchBegan?(point)
+            }
+            super.touchesBegan(touches, with: event)
+        }
+
+        override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+            if isSingleTouchInteraction(touches, event: event), let point = touches.first?.location(in: self) {
+                onSingleTouchMoved?(point)
+            }
+            super.touchesMoved(touches, with: event)
+        }
+
+        override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+            if isSingleTouchInteraction(touches, event: event) {
+                onSingleTouchEnded?()
+            }
+            super.touchesEnded(touches, with: event)
+        }
+
+        override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+            onSingleTouchEnded?()
+            super.touchesCancelled(touches, with: event)
+        }
+
+        private func isSingleTouchInteraction(_ touches: Set<UITouch>, event: UIEvent?) -> Bool {
+            guard touches.count == 1 else { return false }
+            let activeTouchCount = event?.allTouches?.filter { touch in
+                touch.phase != .ended && touch.phase != .cancelled
+            }.count ?? touches.count
+            return activeTouchCount == 1
         }
 
         override func draw(_ rect: CGRect) {
@@ -94,6 +136,48 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
         }
     }
 
+    private final class MosaicMagnifierView: UIView {
+        private let imageView = UIImageView()
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            setupView()
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        func update(image: UIImage?) {
+            imageView.image = image
+        }
+
+        private func setupView() {
+            clipsToBounds = true
+            layer.cornerRadius = 12.0
+            layer.cornerCurve = .continuous
+            layer.borderWidth = 1.0
+            layer.borderColor = UIColor.white.withAlphaComponent(0.85).cgColor
+            layer.shadowColor = UIColor.black.cgColor
+            layer.shadowOpacity = 0.18
+            layer.shadowRadius = 14.0
+            layer.shadowOffset = CGSize(width: 0, height: 8)
+            backgroundColor = .secondarySystemBackground
+
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.contentMode = .scaleAspectFill
+            imageView.clipsToBounds = true
+            addSubview(imageView)
+
+            NSLayoutConstraint.activate([
+                imageView.topAnchor.constraint(equalTo: topAnchor),
+                imageView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+                imageView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            ])
+        }
+    }
+
     private let originalImage: UIImage
     private let ciContext = CIContext(options: nil)
 
@@ -103,6 +187,7 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
     private let contentView = UIView()
     private let imageView = UIImageView()
     private let canvasView = MosaicCanvasView()
+    private let magnifierView = MosaicMagnifierView()
     private let controlCard = UIView()
     private let widthValueLabel = UILabel()
     private let opacityValueLabel = UILabel()
@@ -138,6 +223,8 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
     private var redoStrokes: [MosaicStroke] = []
     private var previewPixelatedImage: UIImage?
     private var exportPixelatedImage: UIImage?
+    private var magnifierOnLeft = true
+    private var pendingMagnifierStartPoint: CGPoint?
 
     private var brushWidth: CGFloat = MosaicViewController.defaultBrushWidth {
         didSet { updateControlValues() }
@@ -212,8 +299,19 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
         let drawingPanGesture = UIPanGestureRecognizer(target: self, action: #selector(handleDrawingPan(_:)))
         drawingPanGesture.minimumNumberOfTouches = 1
         drawingPanGesture.maximumNumberOfTouches = 1
+        drawingPanGesture.cancelsTouchesInView = false
         drawingPanGesture.delegate = self
         canvasView.addGestureRecognizer(drawingPanGesture)
+
+        canvasView.onSingleTouchBegan = { [weak self] point in
+            self?.handleMagnifierTouchBegan(at: point)
+        }
+        canvasView.onSingleTouchMoved = { [weak self] point in
+            self?.handleMagnifierTouchMoved(at: point)
+        }
+        canvasView.onSingleTouchEnded = { [weak self] in
+            self?.hideMagnifier()
+        }
 
         let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         doubleTapGesture.numberOfTapsRequired = 2
@@ -416,6 +514,101 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
         return min(max(ratio, 0), 1) * 100
     }
 
+    private func showMagnifierIfNeeded() {
+        guard magnifierView.superview == nil else { return }
+        magnifierView.alpha = 0.0
+        view.addSubview(magnifierView)
+        UIView.animate(withDuration: 0.15) {
+            self.magnifierView.alpha = 1.0
+        }
+    }
+
+    private func hideMagnifier() {
+        pendingMagnifierStartPoint = nil
+        guard magnifierView.superview != nil else { return }
+        UIView.animate(withDuration: 0.12, animations: {
+            self.magnifierView.alpha = 0.0
+        }, completion: { _ in
+            self.magnifierView.removeFromSuperview()
+        })
+    }
+
+    private func updateMagnifier(at canvasPoint: CGPoint) {
+        let fingerPoint = canvasView.convert(canvasPoint, to: view)
+        let leftFrame = magnifierFrame(placeOnLeft: true)
+        let rightFrame = magnifierFrame(placeOnLeft: false)
+
+        if leftFrame.contains(fingerPoint) {
+            magnifierOnLeft = false
+        } else if rightFrame.contains(fingerPoint) {
+            magnifierOnLeft = true
+        }
+
+        magnifierView.frame = magnifierFrame(placeOnLeft: magnifierOnLeft)
+        magnifierView.update(image: makeMagnifierSnapshot(at: canvasPoint))
+    }
+
+    private func magnifierFrame(placeOnLeft: Bool) -> CGRect {
+        let topInset = view.safeAreaInsets.top + Self.magnifierInset
+        let originX = placeOnLeft
+            ? Self.magnifierInset
+            : max(view.bounds.width - Self.magnifierSize.width - Self.magnifierInset, Self.magnifierInset)
+        return CGRect(origin: CGPoint(x: originX, y: topInset), size: Self.magnifierSize)
+    }
+
+    private func makeMagnifierSnapshot(at canvasPoint: CGPoint) -> UIImage? {
+        guard displaySize.width > 0, displaySize.height > 0 else { return nil }
+
+        let sampleSize = CGSize(
+            width: Self.magnifierSize.width / Self.magnifierZoomScale,
+            height: Self.magnifierSize.height / Self.magnifierZoomScale
+        )
+
+        let contentBounds = CGRect(origin: .zero, size: displaySize)
+        let sampleOrigin = CGPoint(
+            x: min(max(canvasPoint.x - sampleSize.width / 2, contentBounds.minX), contentBounds.maxX - sampleSize.width),
+            y: min(max(canvasPoint.y - sampleSize.height / 2, contentBounds.minY), contentBounds.maxY - sampleSize.height)
+        )
+        let sampleRect = CGRect(origin: sampleOrigin, size: sampleSize)
+
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = UIScreen.main.scale
+        format.opaque = false
+
+        let renderer = UIGraphicsImageRenderer(size: Self.magnifierSize, format: format)
+        return renderer.image { rendererContext in
+            let context = rendererContext.cgContext
+            context.scaleBy(x: Self.magnifierZoomScale, y: Self.magnifierZoomScale)
+            context.translateBy(x: -sampleRect.origin.x, y: -sampleRect.origin.y)
+
+            originalImage.draw(in: contentBounds)
+
+            guard let previewPixelatedImage else { return }
+
+            for stroke in strokes {
+                drawPreviewStroke(stroke, in: context, previewImage: previewPixelatedImage)
+            }
+
+            if let currentStroke {
+                drawPreviewStroke(currentStroke, in: context, previewImage: previewPixelatedImage)
+            }
+        }
+    }
+
+    private func drawPreviewStroke(_ stroke: MosaicStroke, in context: CGContext, previewImage: UIImage) {
+        guard let path = stroke.bezierPath(scale: imageScale) else { return }
+
+        context.saveGState()
+        context.addPath(path.cgPath)
+        context.setLineWidth(path.lineWidth)
+        context.setLineCap(.round)
+        context.setLineJoin(.round)
+        context.replacePathWithStrokedPath()
+        context.clip()
+        previewImage.draw(in: CGRect(origin: .zero, size: displaySize), blendMode: .normal, alpha: stroke.opacity)
+        context.restoreGState()
+    }
+
     private func refreshCurrentStrokeStyleIfNeeded() {
         guard var currentStroke else { return }
         currentStroke.lineWidth = brushWidth * imageScale
@@ -438,6 +631,8 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
             opacity: brushOpacity
         )
         canvasView.currentStroke = currentStroke
+        showMagnifierIfNeeded()
+        updateMagnifier(at: point)
         updateActionItems()
     }
 
@@ -446,6 +641,7 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
         currentStroke.points.append(convertToImagePoint(point))
         self.currentStroke = currentStroke
         canvasView.currentStroke = currentStroke
+        updateMagnifier(at: point)
     }
 
     private func finishStroke() {
@@ -459,12 +655,14 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
         self.currentStroke = nil
         canvasView.currentStroke = nil
         canvasView.strokes = strokes
+        hideMagnifier()
         updateActionItems()
     }
 
     private func cancelCurrentStroke() {
         currentStroke = nil
         canvasView.currentStroke = nil
+        hideMagnifier()
         updateActionItems()
     }
 
@@ -551,7 +749,34 @@ final class MosaicViewController: UIViewController, UIScrollViewDelegate, UIGest
         }
     }
 
+    private func handleMagnifierTouchBegan(at point: CGPoint) {
+        guard canvasView.bounds.contains(point) else { return }
+        pendingMagnifierStartPoint = point
+    }
+
+    private func handleMagnifierTouchMoved(at point: CGPoint) {
+        guard canvasView.bounds.contains(point) else {
+            hideMagnifier()
+            return
+        }
+
+        if let startPoint = pendingMagnifierStartPoint,
+           hypot(point.x - startPoint.x, point.y - startPoint.y) >= Self.magnifierActivationDistance {
+            showMagnifierIfNeeded()
+            updateMagnifier(at: point)
+            pendingMagnifierStartPoint = nil
+            return
+        }
+
+        if currentStroke != nil || magnifierView.superview != nil {
+            showMagnifierIfNeeded()
+            updateMagnifier(at: point)
+        }
+    }
+
     @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
+        hideMagnifier()
+
         if scrollView.zoomScale > scrollView.minimumZoomScale {
             scrollView.setZoomScale(scrollView.minimumZoomScale, animated: true)
             return
