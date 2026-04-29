@@ -12,6 +12,18 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
     private let backgroundImageView = UIImageView()
     private let canvasView = PKCanvasView()
     private let toolPicker = PKToolPicker()
+    private let undoItem = UIBarButtonItem(
+        image: UIImage(systemName: "arrow.uturn.backward"),
+        style: .plain,
+        target: nil,
+        action: nil
+    )
+    private let redoItem = UIBarButtonItem(
+        image: UIImage(systemName: "arrow.uturn.forward"),
+        style: .plain,
+        target: nil,
+        action: nil
+    )
 
     private var displaySize: CGSize = .zero
     private var lastLayoutWidth: CGFloat = 0
@@ -34,6 +46,7 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
         super.viewDidLoad()
         setupNavigationBar()
         setupUI()
+        updateActionItems()
     }
 
     override func viewDidLayoutSubviews() {
@@ -46,6 +59,7 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
         toolPicker.setVisible(true, forFirstResponder: canvasView)
         toolPicker.addObserver(canvasView)
         canvasView.becomeFirstResponder()
+        updateActionItems()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -64,18 +78,10 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
             target: self,
             action: #selector(doneTapped)
         )
-        let undoItem = UIBarButtonItem(
-            image: UIImage(systemName: "arrow.uturn.backward"),
-            style: .plain,
-            target: self,
-            action: #selector(undoTapped)
-        )
-        let redoItem = UIBarButtonItem(
-            image: UIImage(systemName: "arrow.uturn.forward"),
-            style: .plain,
-            target: self,
-            action: #selector(redoTapped)
-        )
+        undoItem.target = self
+        undoItem.action = #selector(undoTapped)
+        redoItem.target = self
+        redoItem.action = #selector(redoTapped)
 
         if isNavigationRoot {
             navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -88,6 +94,11 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
             navigationItem.leftBarButtonItem = nil
         }
         navigationItem.rightBarButtonItems = [doneItem, redoItem, undoItem]
+    }
+
+    private func updateActionItems() {
+        undoItem.isEnabled = canvasView.undoManager?.canUndo ?? false
+        redoItem.isEnabled = canvasView.undoManager?.canRedo ?? false
     }
 
     private func setupUI() {
@@ -227,16 +238,19 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
     }
 
     func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
+        updateActionItems()
     }
 
     override var canBecomeFirstResponder: Bool { true }
 
     @objc private func undoTapped() {
         canvasView.undoManager?.undo()
+        updateActionItems()
     }
 
     @objc private func redoTapped() {
         canvasView.undoManager?.redo()
+        updateActionItems()
     }
 
     @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
