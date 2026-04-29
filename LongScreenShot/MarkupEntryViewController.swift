@@ -33,7 +33,7 @@ final class MarkupEntryViewController: UIViewController, UITableViewDataSource, 
         ),
         Entry(
             title: NSLocalizedString("马赛克", comment: "Markup entry mosaic button"),
-            subtitle: NSLocalizedString("进入马赛克编辑页骨架，后续接入真实像素化能力", comment: "Markup entry mosaic subtitle"),
+            subtitle: NSLocalizedString("滑动涂抹局部区域，应用像素化打码效果", comment: "Markup entry mosaic subtitle"),
             iconName: "square.grid.3x3.fill",
             accentColor: .systemOrange,
             destination: .mosaic
