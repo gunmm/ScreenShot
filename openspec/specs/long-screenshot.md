@@ -38,7 +38,9 @@
   2. 使用 `UIStackView` 在 `UIScrollView` 内将所有分片连贯堆叠，**模拟最终成品的无缝拼贴**。
   3. 各张片的 `ChunkContainer` 配置上下两根可供拖拽操作的 Handle (横线区)，拦截 `UIPanGestureRecognizer` 手势指令。
   4. 拖拽期间：利用 `currentRanges` 的改变实时作用在内部图片的位置偏移（TopConstraint offset）和视图窗的高（HeightConstraint）限制上，以达成**所见即所得、滑动自动缝合**的互动效果。
-  5. 点击 Done 回传调整好的 `newRanges`。
+  5. 当用户拖动顶部或底部裁剪手柄时，编辑页必须显示一个跟随更新的局部放大镜，帮助用户以清晰且不失真的方式观察接缝附近的细节位置；放大镜应使用 160 x 160 的方形预览并固定在编辑区域左上角或右上角，其内容应优先基于原始图片像素生成真实接缝预览，能够同时反映接缝上下两侧的分片内容，结束拖动后必须立即消失。
+    当前放大倍数应在已稳定可用的基础上略高于上一版，以便更精细地观察 seam 细节，同时保留必要上下文。
+  6. 点击 Done 回传调整好的 `newRanges`。
 - **重新拼接与应用**：
   1. `ViewController` 收到 `newRanges`，后台线程重新调用 `ImageStitcher.stitch(withRanges:)`。
   2. 更新覆盖主界面的展示大图。
