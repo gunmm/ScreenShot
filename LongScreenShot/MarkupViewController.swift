@@ -17,6 +17,10 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
     private var lastLayoutWidth: CGFloat = 0
     private var lastLayoutHeight: CGFloat = 0
 
+    private var isNavigationRoot: Bool {
+        navigationController?.viewControllers.first === self || navigationController == nil
+    }
+
     init(image: UIImage) {
         self.originalImage = image
         super.init(nibName: nil, bundle: nil)
@@ -54,12 +58,6 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
         title = NSLocalizedString("涂鸦/打码", comment: "Markup title")
         view.backgroundColor = .systemBackground
 
-        let cancelItem = UIBarButtonItem(
-            title: NSLocalizedString("取消", comment: "Cancel"),
-            style: .plain,
-            target: self,
-            action: #selector(cancelTapped)
-        )
         let doneItem = UIBarButtonItem(
             title: NSLocalizedString("完成", comment: "Done"),
             style: .done,
@@ -79,7 +77,16 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
             action: #selector(redoTapped)
         )
 
-        navigationItem.leftBarButtonItem = cancelItem
+        if isNavigationRoot {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(
+                title: NSLocalizedString("取消", comment: "Cancel"),
+                style: .plain,
+                target: self,
+                action: #selector(cancelTapped)
+            )
+        } else {
+            navigationItem.leftBarButtonItem = nil
+        }
         navigationItem.rightBarButtonItems = [doneItem, redoItem, undoItem]
     }
 
@@ -278,8 +285,11 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
             drawingImage.draw(at: .zero)
         }
 
-        dismiss(animated: true) { [weak self] in
-            self?.onConfirm?(newImage)
+        onConfirm?(newImage)
+        if let navigationController {
+            navigationController.dismiss(animated: true)
+        } else {
+            dismiss(animated: true)
         }
     }
 }

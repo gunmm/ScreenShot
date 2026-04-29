@@ -482,8 +482,8 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     @objc private func markupResult() {
         guard let image = self.rawStitchedImage else { return }
         
-        let markupVC = MarkupViewController(image: image)
-        markupVC.onConfirm = { [weak self] newImage in
+        let entryVC = MarkupEntryViewController(image: image)
+        entryVC.onConfirm = { [weak self] newImage in
             guard let self = self else { return }
             self.rawStitchedImage = newImage
             self.hasMarkupEdits = true
@@ -491,7 +491,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             self.display(image: displayImage)
         }
         
-        let nav = UINavigationController(rootViewController: markupVC)
+        let nav = UINavigationController(rootViewController: entryVC)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
     }
