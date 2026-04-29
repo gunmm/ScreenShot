@@ -16,7 +16,6 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
     private var displaySize: CGSize = .zero
     private var lastLayoutWidth: CGFloat = 0
     private var lastLayoutHeight: CGFloat = 0
-    private var scrollLogCounter = 0
 
     init(image: UIImage) {
         self.originalImage = image
@@ -144,7 +143,6 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
             displaySize != .zero {
             centerContentIfNeeded()
             syncBackgroundScrollView()
-            logGeometry(event: "layout-reuse", force: true)
             return
         }
 
@@ -167,7 +165,6 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
 
         centerContentIfNeeded()
         syncBackgroundScrollView()
-        logGeometry(event: "layout-update", force: true)
     }
 
     private func zoomScaleBounds(forAvailableHeight availableHeight: CGFloat) -> (minimum: CGFloat, maximum: CGFloat) {
@@ -198,14 +195,12 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
 
         canvasView.contentInset = contentInset
         backgroundScrollView.contentInset = contentInset
-        logGeometry(event: "center-content")
     }
 
     private func syncBackgroundScrollView() {
         backgroundScrollView.zoomScale = canvasView.zoomScale
         backgroundScrollView.contentInset = canvasView.contentInset
         backgroundScrollView.contentOffset = canvasView.contentOffset
-        logGeometry(event: "sync-background")
     }
 
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
@@ -213,66 +208,15 @@ class MarkupViewController: UIViewController, UIScrollViewDelegate, PKCanvasView
         return backgroundImageView
     }
 
-    private func logGeometry(event: String, force: Bool = false) {
-        if !force {
-            if event == "sync-background" {
-                scrollLogCounter += 1
-                if scrollLogCounter % 8 != 0 {
-                    return
-                }
-            } else if event == "center-content" {
-                return
-            }
-        }
-
-        let canvasInset = canvasView.contentInset
-        let backgroundInset = backgroundScrollView.contentInset
-        let canvasOffset = canvasView.contentOffset
-        let backgroundOffset = backgroundScrollView.contentOffset
-
-        AppLogger.shared.log(
-            "[Markup] \(event) " +
-            "display=\(format(displaySize)) " +
-            "canvas(bounds=\(format(canvasView.bounds.size)), content=\(format(canvasView.contentSize)), zoom=\(format(canvasView.zoomScale)), min=\(format(canvasView.minimumZoomScale)), max=\(format(canvasView.maximumZoomScale)), offset=\(format(canvasOffset)), inset=\(format(canvasInset))) " +
-            "bg(bounds=\(format(backgroundScrollView.bounds.size)), content=\(format(backgroundScrollView.contentSize)), zoom=\(format(backgroundScrollView.zoomScale)), min=\(format(backgroundScrollView.minimumZoomScale)), max=\(format(backgroundScrollView.maximumZoomScale)), offset=\(format(backgroundOffset)), inset=\(format(backgroundInset)))"
-        )
-    }
-
-    private func format(_ size: CGSize) -> String {
-        let width = String(format: "%.2f", size.width)
-        let height = String(format: "%.2f", size.height)
-        return "(w:\(width),h:\(height))"
-    }
-
-    private func format(_ point: CGPoint) -> String {
-        let x = String(format: "%.2f", point.x)
-        let y = String(format: "%.2f", point.y)
-        return "(x:\(x),y:\(y))"
-    }
-
-    private func format(_ inset: UIEdgeInsets) -> String {
-        let top = String(format: "%.2f", inset.top)
-        let left = String(format: "%.2f", inset.left)
-        let bottom = String(format: "%.2f", inset.bottom)
-        let right = String(format: "%.2f", inset.right)
-        return "(t:\(top),l:\(left),b:\(bottom),r:\(right))"
-    }
-
-    private func format(_ value: CGFloat) -> String {
-        String(format: "%.4f", value)
-    }
-
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         guard scrollView === canvasView else { return }
         centerContentIfNeeded()
         syncBackgroundScrollView()
-        logGeometry(event: "did-zoom", force: true)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard scrollView === canvasView else { return }
         syncBackgroundScrollView()
-        logGeometry(event: "did-scroll")
     }
 
     func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
