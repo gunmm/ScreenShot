@@ -19,6 +19,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     private let saveButton = UIButton(type: .system)
     private let unlockProButton = UIButton(type: .system) // New unlock button
     private var rawStitchedImage: UIImage? // Store raw image without watermark
+    private var hasMarkupEdits = false
     private let statusLabel = UILabel()
     private let guideLabel = UILabel()
     private let demoButton = UIButton(type: .system)
@@ -405,6 +406,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         display(image: nil)
         rawStitchedImage = nil
+        hasMarkupEdits = false
         state = .generating(frameCount: chunks.count)
         
         // Run on background thread to avoid blocking UI
@@ -415,6 +417,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             DispatchQueue.main.async {
                 if let result = stitchedImage {
                     self.rawStitchedImage = result
+                    self.hasMarkupEdits = false
                     let displayImage = PurchaseStatusManager.shared.isPurchased() ? result : self.addFullScreenWatermark(to: result)
                     self.display(image: displayImage)
                     self.state = .generated(size: result.size, images: chunks, ranges: ranges)
@@ -444,6 +447,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             ChunkManager.shared.clearAllChunks()
             self?.display(image: nil)
             self?.rawStitchedImage = nil
+            self?.hasMarkupEdits = false
             self?.state = .idle
         }))
         present(alert, animated: true)
@@ -457,15 +461,22 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     
     @objc private func editResult() {
         guard case let .generated(_, images, ranges) = state else { return }
-        
-        let editVC = EditViewController(images: images, initialRanges: ranges)
-        editVC.onConfirm = { [weak self] newRanges in
-            self?.applyNewRanges(newRanges, to: images)
+
+        if hasMarkupEdits {
+            let alert = UIAlertController(
+                title: NSLocalizedString("丢弃已涂抹效果？", comment: "Discard markup warning title"),
+                message: NSLocalizedString("拼接调整会基于原始分片重新生成结果图，继续后将丢弃当前已经涂抹/打码的效果。", comment: "Discard markup warning message"),
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel"), style: .cancel))
+            alert.addAction(UIAlertAction(title: NSLocalizedString("继续调整", comment: "Continue editing"), style: .destructive, handler: { [weak self] _ in
+                self?.presentEditResult(images: images, ranges: ranges)
+            }))
+            present(alert, animated: true)
+            return
         }
-        
-        let nav = UINavigationController(rootViewController: editVC)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
+
+        presentEditResult(images: images, ranges: ranges)
     }
     
     @objc private func markupResult() {
@@ -475,6 +486,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         markupVC.onConfirm = { [weak self] newImage in
             guard let self = self else { return }
             self.rawStitchedImage = newImage
+            self.hasMarkupEdits = true
             let displayImage = PurchaseStatusManager.shared.isPurchased() ? newImage : self.addFullScreenWatermark(to: newImage)
             self.display(image: displayImage)
         }
@@ -493,6 +505,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             DispatchQueue.main.async {
                 if let result = stitchedImage {
                     self.rawStitchedImage = result
+                    self.hasMarkupEdits = false
                     let displayImage = PurchaseStatusManager.shared.isPurchased() ? result : self.addFullScreenWatermark(to: result)
                     self.display(image: displayImage)
                     self.state = .generated(size: result.size, images: images, ranges: newRanges)
@@ -501,6 +514,17 @@ class ViewController: UIViewController, UIScrollViewDelegate {
                 }
             }
         }
+    }
+
+    private func presentEditResult(images: [UIImage], ranges: [(start: Int, end: Int)]) {
+        let editVC = EditViewController(images: images, initialRanges: ranges)
+        editVC.onConfirm = { [weak self] newRanges in
+            self?.applyNewRanges(newRanges, to: images)
+        }
+
+        let nav = UINavigationController(rootViewController: editVC)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
     
     @objc private func showSaveOptions() {
