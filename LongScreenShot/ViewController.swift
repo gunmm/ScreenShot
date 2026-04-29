@@ -15,6 +15,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 #endif
     private let settingsButton = UIButton(type: .system) // Top right settings button
     private let editButton = UIButton(type: .system) // Edit button
+    private let markupButton = UIButton(type: .system) // Markup button
     private let saveButton = UIButton(type: .system)
     private let unlockProButton = UIButton(type: .system) // New unlock button
     private var rawStitchedImage: UIImage? // Store raw image without watermark
@@ -156,9 +157,13 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         // 5. Edit / Save Buttons
         
-        editButton.setTitle(NSLocalizedString("编辑", comment: "Edit button"), for: .normal)
+        editButton.setTitle(NSLocalizedString("拼接调整", comment: "Edit button"), for: .normal)
         editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
         editButton.isEnabled = false
+        
+        markupButton.setTitle(NSLocalizedString("涂抹/打码", comment: "Markup button"), for: .normal)
+        markupButton.addTarget(self, action: #selector(markupResult), for: .touchUpInside)
+        markupButton.isEnabled = false
         
         saveButton.setTitle(NSLocalizedString("保存", comment: "Save button"), for: .normal)
         saveButton.addTarget(self, action: #selector(showSaveOptions), for: .touchUpInside)
@@ -173,6 +178,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         view.addSubview(unlockProButton)
         
         editButton.translatesAutoresizingMaskIntoConstraints = false
+        markupButton.translatesAutoresizingMaskIntoConstraints = false
         saveButton.translatesAutoresizingMaskIntoConstraints = false
         
         actionsStack.axis = .horizontal
@@ -180,6 +186,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         actionsStack.distribution = .fillEqually
         actionsStack.translatesAutoresizingMaskIntoConstraints = false
         actionsStack.addArrangedSubview(editButton)
+        actionsStack.addArrangedSubview(markupButton)
         actionsStack.addArrangedSubview(saveButton)
         view.addSubview(actionsStack)
         
@@ -303,6 +310,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             previewButton.isEnabled = true
 #endif
             editButton.isEnabled = false
+            markupButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
@@ -315,6 +323,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             previewButton.isEnabled = false
 #endif
             editButton.isEnabled = false
+            markupButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = false
             statusLabel.textColor = .label
@@ -327,6 +336,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             previewButton.isEnabled = true
 #endif
             editButton.isEnabled = (imageView.image != nil)
+            markupButton.isEnabled = (imageView.image != nil)
             saveButton.isEnabled = (imageView.image != nil)
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .label
@@ -339,6 +349,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             previewButton.isEnabled = true
 #endif
             editButton.isEnabled = false
+            markupButton.isEnabled = false
             saveButton.isEnabled = false
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .systemRed
@@ -453,6 +464,22 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         }
         
         let nav = UINavigationController(rootViewController: editVC)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+    
+    @objc private func markupResult() {
+        guard let image = self.rawStitchedImage else { return }
+        
+        let markupVC = MarkupViewController(image: image)
+        markupVC.onConfirm = { [weak self] newImage in
+            guard let self = self else { return }
+            self.rawStitchedImage = newImage
+            let displayImage = PurchaseStatusManager.shared.isPurchased() ? newImage : self.addFullScreenWatermark(to: newImage)
+            self.display(image: displayImage)
+        }
+        
+        let nav = UINavigationController(rootViewController: markupVC)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
     }

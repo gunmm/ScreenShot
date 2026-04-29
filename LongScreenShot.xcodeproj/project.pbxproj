@@ -8,25 +8,35 @@
 
 /* Begin PBXBuildFile section */
 		010249DA8E57ADBCB316C216 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
+		037341C59549B39006A31499 /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18724B38A40F975D0EE36106 /* EditViewController.swift */; };
 		05444238BECB6110D727F0AB /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
 		0FFD44A885F6180286428219 /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
 		3EC1439FB39C857C0A3636C5 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
+		49E04950B538C18F2302B5B7 /* MarkupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE844A9580EA45A82B16A881 /* MarkupViewController.swift */; };
 		4DE24A22852C26C86F369EA0 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
 		4FE54E188D4BE84BBD03B0CB /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
 		54EE44BC8EE3F35C4002C3B0 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
 		5D034F758AD0B619501E3BAC /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
+		5D9E4C2F99963FA32EEEC605 /* MarkupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE844A9580EA45A82B16A881 /* MarkupViewController.swift */; };
 		66BD4E27A41D27979C8CA0B7 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
 		69814177B55367E2C00A832C /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
 		6D8045AE8E697C0809D1197A /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
+		8250419996A8F3B807E7A88B /* MarkupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE844A9580EA45A82B16A881 /* MarkupViewController.swift */; };
 		85994CB8A5170F5CFD1B1A39 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40524BD6BE3AC857979782B2 /* AppLogger.swift */; };
+		878E468EA7A1000F1849CC85 /* MarkupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE844A9580EA45A82B16A881 /* MarkupViewController.swift */; };
 		88DA4E7081E0C32CEC21E5D2 /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
+		B6B54F4BA10AED5D9AED5B12 /* MarkupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE844A9580EA45A82B16A881 /* MarkupViewController.swift */; };
+		BC6E495D8449C0449DF50978 /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18724B38A40F975D0EE36106 /* EditViewController.swift */; };
+		C0164935A9FADC0E24CE8376 /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18724B38A40F975D0EE36106 /* EditViewController.swift */; };
 		C6854528A5D9A071B896DD14 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */; };
 		CDE361792F24980B0020E3EF /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE361782F24980B0020E3EF /* ReplayKit.framework */; };
 		CDE361832F24980B0020E3EF /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE361782F24980B0020E3EF /* ReplayKit.framework */; };
 		CDE361852F24980B0020E3EF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE361842F24980B0020E3EF /* UIKit.framework */; };
 		CDE3618C2F24980B0020E3EF /* ScreenCaptureSetupUI.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDE361822F24980B0020E3EF /* ScreenCaptureSetupUI.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CDE3618F2F24980B0020E3EF /* ScreenCapture.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDE361762F24980B0020E3EF /* ScreenCapture.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		EE834FF298B57B0C2E306ACE /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18724B38A40F975D0EE36106 /* EditViewController.swift */; };
 		F3684A8CB263BD7AA90B63EA /* FeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */; };
+		F82147B6BFA91262C7A520CB /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18724B38A40F975D0EE36106 /* EditViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +86,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		18724B38A40F975D0EE36106 /* EditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EditViewController.swift; path = LongScreenShot/EditViewController.swift; sourceTree = SOURCE_ROOT; };
 		208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FeedbackViewController.swift; path = LongScreenShot/FeedbackViewController.swift; sourceTree = SOURCE_ROOT; };
 		40524BD6BE3AC857979782B2 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppLogger.swift; path = LongScreenShot/Shared/AppLogger.swift; sourceTree = SOURCE_ROOT; };
 		5D87ABDF6CDA1F86FFE1B9D9 /* PMConfig.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = PMConfig.xcconfig; sourceTree = "<group>"; };
@@ -87,31 +98,32 @@
 		CDE361782F24980B0020E3EF /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		CDE361822F24980B0020E3EF /* ScreenCaptureSetupUI.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScreenCaptureSetupUI.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDE361842F24980B0020E3EF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		FE844A9580EA45A82B16A881 /* MarkupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MarkupViewController.swift; path = LongScreenShot/MarkupViewController.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		CDE3614F2F2493380020E3EF /* Exceptions for "LongScreenShot" folder in "LongScreenShot" target */ = {
+		CDE3614F2F2493380020E3EF = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = CDE361262F2493370020E3EF /* LongScreenShot */;
 		};
-		CDE361932F24980B0020E3EF /* Exceptions for "ScreenCaptureSetupUI" folder in "ScreenCaptureSetupUI" target */ = {
+		CDE361932F24980B0020E3EF = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = CDE361812F24980B0020E3EF /* ScreenCaptureSetupUI */;
 		};
-		CDE361972F24980B0020E3EF /* Exceptions for "ScreenCapture" folder in "ScreenCapture" target */ = {
+		CDE361972F24980B0020E3EF = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = CDE361752F24980B0020E3EF /* ScreenCapture */;
 		};
-		CDE361A32F24AB7E0020E3EF /* Exceptions for "LongScreenShot" folder in "ScreenCapture" target */ = {
+		CDE361A32F24AB7E0020E3EF = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				3rd/opencv2.framework,
@@ -124,41 +136,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		CDE361292F2493370020E3EF /* LongScreenShot */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				CDE3614F2F2493380020E3EF /* Exceptions for "LongScreenShot" folder in "LongScreenShot" target */,
-				CDE361A32F24AB7E0020E3EF /* Exceptions for "LongScreenShot" folder in "ScreenCapture" target */,
-			);
-			path = LongScreenShot;
-			sourceTree = "<group>";
-		};
-		CDE361402F2493380020E3EF /* LongScreenShotTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = LongScreenShotTests;
-			sourceTree = "<group>";
-		};
-		CDE3614A2F2493380020E3EF /* LongScreenShotUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = LongScreenShotUITests;
-			sourceTree = "<group>";
-		};
-		CDE3617A2F24980B0020E3EF /* ScreenCapture */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				CDE361972F24980B0020E3EF /* Exceptions for "ScreenCapture" folder in "ScreenCapture" target */,
-			);
-			path = ScreenCapture;
-			sourceTree = "<group>";
-		};
-		CDE361862F24980B0020E3EF /* ScreenCaptureSetupUI */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				CDE361932F24980B0020E3EF /* Exceptions for "ScreenCaptureSetupUI" folder in "ScreenCaptureSetupUI" target */,
-			);
-			path = ScreenCaptureSetupUI;
-			sourceTree = "<group>";
-		};
+		CDE361292F2493370020E3EF /* LongScreenShot */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (CDE3614F2F2493380020E3EF, CDE361A32F24AB7E0020E3EF, ); path = LongScreenShot; sourceTree = "<group>"; };
+		CDE361402F2493380020E3EF /* LongScreenShotTests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = LongScreenShotTests; sourceTree = "<group>"; };
+		CDE3614A2F2493380020E3EF /* LongScreenShotUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = LongScreenShotUITests; sourceTree = "<group>"; };
+		CDE3617A2F24980B0020E3EF /* ScreenCapture */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (CDE361972F24980B0020E3EF, ); path = ScreenCapture; sourceTree = "<group>"; };
+		CDE361862F24980B0020E3EF /* ScreenCaptureSetupUI */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (CDE361932F24980B0020E3EF, ); path = ScreenCaptureSetupUI; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -217,6 +199,8 @@
 				40524BD6BE3AC857979782B2 /* AppLogger.swift */,
 				70AD4EED9FE2D2280C44E8BF /* CloudKitManager.swift */,
 				208C4013808FBAAB67DE0A04 /* FeedbackViewController.swift */,
+				18724B38A40F975D0EE36106 /* EditViewController.swift */,
+				FE844A9580EA45A82B16A881 /* MarkupViewController.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -449,6 +433,8 @@
 				3EC1439FB39C857C0A3636C5 /* AppLogger.swift in Sources */,
 				4DE24A22852C26C86F369EA0 /* CloudKitManager.swift in Sources */,
 				F3684A8CB263BD7AA90B63EA /* FeedbackViewController.swift in Sources */,
+				F82147B6BFA91262C7A520CB /* EditViewController.swift in Sources */,
+				49E04950B538C18F2302B5B7 /* MarkupViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -459,6 +445,8 @@
 				6D8045AE8E697C0809D1197A /* AppLogger.swift in Sources */,
 				C6854528A5D9A071B896DD14 /* CloudKitManager.swift in Sources */,
 				88DA4E7081E0C32CEC21E5D2 /* FeedbackViewController.swift in Sources */,
+				BC6E495D8449C0449DF50978 /* EditViewController.swift in Sources */,
+				8250419996A8F3B807E7A88B /* MarkupViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,6 +457,8 @@
 				85994CB8A5170F5CFD1B1A39 /* AppLogger.swift in Sources */,
 				5D034F758AD0B619501E3BAC /* CloudKitManager.swift in Sources */,
 				0FFD44A885F6180286428219 /* FeedbackViewController.swift in Sources */,
+				C0164935A9FADC0E24CE8376 /* EditViewController.swift in Sources */,
+				878E468EA7A1000F1849CC85 /* MarkupViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -479,6 +469,8 @@
 				69814177B55367E2C00A832C /* AppLogger.swift in Sources */,
 				010249DA8E57ADBCB316C216 /* CloudKitManager.swift in Sources */,
 				05444238BECB6110D727F0AB /* FeedbackViewController.swift in Sources */,
+				EE834FF298B57B0C2E306ACE /* EditViewController.swift in Sources */,
+				5D9E4C2F99963FA32EEEC605 /* MarkupViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -489,6 +481,8 @@
 				54EE44BC8EE3F35C4002C3B0 /* AppLogger.swift in Sources */,
 				66BD4E27A41D27979C8CA0B7 /* CloudKitManager.swift in Sources */,
 				4FE54E188D4BE84BBD03B0CB /* FeedbackViewController.swift in Sources */,
+				037341C59549B39006A31499 /* EditViewController.swift in Sources */,
+				B6B54F4BA10AED5D9AED5B12 /* MarkupViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
