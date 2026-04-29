@@ -114,6 +114,36 @@ extension EditViewController: ChunkContainerDelegate {
         currentRanges[index] = newRange
         container.update(with: newRange)
     }
+
+    func chunkContainer(_ container: ChunkContainer, magnifierImageFor handle: HandlePosition, size: CGSize, zoomScale: CGFloat) -> UIImage? {
+        let index = container.index
+        let upperSource: (image: UIImage, seam: Int)
+        let lowerSource: (image: UIImage, seam: Int)
+
+        switch handle {
+        case .top:
+            if index > 0 {
+                upperSource = (originalImages[index - 1], currentRanges[index - 1].end)
+            } else {
+                upperSource = (originalImages[index], currentRanges[index].start)
+            }
+            lowerSource = (originalImages[index], currentRanges[index].start)
+        case .bottom:
+            upperSource = (originalImages[index], currentRanges[index].end)
+            if index < originalImages.count - 1 {
+                lowerSource = (originalImages[index + 1], currentRanges[index + 1].start)
+            } else {
+                lowerSource = (originalImages[index], currentRanges[index].end)
+            }
+        }
+
+        return makeSeamMagnifierImage(
+            upperSource: upperSource,
+            lowerSource: lowerSource,
+            size: size,
+            zoomScale: zoomScale
+        )
+    }
     
     func chunkContainerDidSelect(_ container: ChunkContainer) {
         let newIndex = container.index
@@ -132,12 +162,89 @@ extension EditViewController: ChunkContainerDelegate {
             container.isSelected = true
         }
     }
+
+    private func makeSeamMagnifierImage(
+        upperSource: (image: UIImage, seam: Int),
+        lowerSource: (image: UIImage, seam: Int),
+        size: CGSize,
+        zoomScale: CGFloat
+    ) -> UIImage? {
+        let halfHeight = size.height / 2.0
+        let halfAspectRatio = size.width / halfHeight
+
+        guard
+            let upperSlice = cropMagnifierSlice(
+                from: upperSource.image,
+                seamPx: upperSource.seam,
+                targetAspectRatio: halfAspectRatio,
+                zoomScale: zoomScale,
+                position: .top
+            ),
+            let lowerSlice = cropMagnifierSlice(
+                from: lowerSource.image,
+                seamPx: lowerSource.seam,
+                targetAspectRatio: halfAspectRatio,
+                zoomScale: zoomScale,
+                position: .bottom
+            )
+        else {
+            return nil
+        }
+
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = UIScreen.main.scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+
+        return renderer.image { _ in
+            upperSlice.draw(in: CGRect(x: 0, y: 0, width: size.width, height: halfHeight))
+            lowerSlice.draw(in: CGRect(x: 0, y: halfHeight, width: size.width, height: halfHeight))
+        }
+    }
+
+    private func cropMagnifierSlice(
+        from image: UIImage,
+        seamPx: Int,
+        targetAspectRatio: CGFloat,
+        zoomScale: CGFloat,
+        position: HandlePosition
+    ) -> UIImage? {
+        guard let cgImage = image.cgImage else { return nil }
+
+        let imageWidthPx = CGFloat(cgImage.width)
+        let imageHeightPx = CGFloat(cgImage.height)
+        guard imageWidthPx > 0, imageHeightPx > 0 else { return nil }
+
+        let sampleWidthPx = min(imageWidthPx / zoomScale, imageWidthPx)
+        let sampleHeightPx = min(sampleWidthPx / targetAspectRatio, imageHeightPx)
+        let centerX = imageWidthPx / 2.0
+        let cropX = min(max(centerX - sampleWidthPx / 2.0, 0.0), max(imageWidthPx - sampleWidthPx, 0.0))
+
+        let seamY = CGFloat(seamPx)
+        let cropY: CGFloat
+        switch position {
+        case .top:
+            cropY = min(max(seamY - sampleHeightPx, 0.0), max(imageHeightPx - sampleHeightPx, 0.0))
+        case .bottom:
+            cropY = min(max(seamY, 0.0), max(imageHeightPx - sampleHeightPx, 0.0))
+        }
+
+        let cropRect = CGRect(x: cropX, y: cropY, width: sampleWidthPx, height: sampleHeightPx).integral
+        guard let croppedImage = cgImage.cropping(to: cropRect) else { return nil }
+
+        return UIImage(cgImage: croppedImage, scale: image.scale, orientation: .up)
+    }
 }
 
 // MARK: - Custom Views
 
+enum HandlePosition {
+    case top
+    case bottom
+}
+
 protocol ChunkContainerDelegate: AnyObject {
     func chunkContainer(_ container: ChunkContainer, didUpdateRange newRange: (start: Int, end: Int))
+    func chunkContainer(_ container: ChunkContainer, magnifierImageFor handle: HandlePosition, size: CGSize, zoomScale: CGFloat) -> UIImage?
     func chunkContainerDidSelect(_ container: ChunkContainer)
 }
 
@@ -149,6 +256,7 @@ class ChunkContainer: UIView {
     
     private let topHandle = UIView()
     private let bottomHandle = UIView()
+    private let magnifierView = SeamMagnifierView()
     
     // Properties to store original image info
     private let originalImage: UIImage
@@ -162,6 +270,10 @@ class ChunkContainer: UIView {
     // Interaction State
     private var panStartY: CGFloat = 0.0
     private var initialRangeOnPanStart: (start: Int, end: Int) = (0, 0)
+    private let minimumVisibleRangePx = 100
+    private let magnifierSize = CGSize(width: 160.0, height: 160.0)
+    private let magnifierInset: CGFloat = 12.0
+    private let magnifierZoomScale: CGFloat = 3.1
     
     var isSelected: Bool = false {
         didSet {
@@ -314,6 +426,8 @@ class ChunkContainer: UIView {
         switch gesture.state {
         case .began:
             initialRangeOnPanStart = currentRange
+            showMagnifierIfNeeded()
+            updateMagnifier(for: .top)
         case .changed:
             let displayWidth = UIScreen.main.bounds.width
             let ratio = originalImage.size.height / originalImage.size.width
@@ -327,9 +441,13 @@ class ChunkContainer: UIView {
             var newStart = initialRangeOnPanStart.start + Int(deltaPx)
             
             // Bounds check
-            newStart = max(0, min(newStart, currentRange.end - 100)) // Keep at least 100px difference
+            newStart = max(0, min(newStart, currentRange.end - minimumVisibleRangePx)) // Keep at least 100px difference
             
             delegate?.chunkContainer(self, didUpdateRange: (start: newStart, end: currentRange.end))
+            superview.layoutIfNeeded()
+            updateMagnifier(for: .top)
+        case .ended, .cancelled, .failed:
+            hideMagnifier()
         default:
             break
         }
@@ -342,6 +460,8 @@ class ChunkContainer: UIView {
         switch gesture.state {
         case .began:
             initialRangeOnPanStart = currentRange
+            showMagnifierIfNeeded()
+            updateMagnifier(for: .bottom)
         case .changed:
             let displayWidth = UIScreen.main.bounds.width
             let ratio = originalImage.size.height / originalImage.size.width
@@ -357,11 +477,108 @@ class ChunkContainer: UIView {
             let maxHeightPx = Int(originalImage.size.height * originalImage.scale)
             
             // Bounds check
-            newEnd = max(currentRange.start + 100, min(newEnd, maxHeightPx))
+            newEnd = max(currentRange.start + minimumVisibleRangePx, min(newEnd, maxHeightPx))
             
             delegate?.chunkContainer(self, didUpdateRange: (start: currentRange.start, end: newEnd))
+            superview.layoutIfNeeded()
+            updateMagnifier(for: .bottom)
+        case .ended, .cancelled, .failed:
+            hideMagnifier()
         default:
             break
         }
+    }
+
+    private func showMagnifierIfNeeded() {
+        guard magnifierView.superview == nil, let superview = self.superview else { return }
+        magnifierView.alpha = 0.0
+        superview.addSubview(magnifierView)
+        UIView.animate(withDuration: 0.15) {
+            self.magnifierView.alpha = 1.0
+        }
+    }
+
+    private func hideMagnifier() {
+        guard magnifierView.superview != nil else { return }
+        UIView.animate(withDuration: 0.12, animations: {
+            self.magnifierView.alpha = 0.0
+        }, completion: { _ in
+            self.magnifierView.removeFromSuperview()
+        })
+    }
+
+    private func updateMagnifier(for handle: HandlePosition) {
+        guard let superview = self.superview else { return }
+
+        let seamPoint = seamPointInSuperview(for: handle)
+
+        magnifierView.isHidden = true
+        if let snapshot = delegate?.chunkContainer(self, magnifierImageFor: handle, size: magnifierSize, zoomScale: magnifierZoomScale) {
+            magnifierView.update(image: snapshot)
+        }
+        magnifierView.isHidden = false
+
+        let placeOnLeft = seamPoint.x >= superview.bounds.midX
+        let originX = placeOnLeft ? magnifierInset : max(superview.bounds.width - magnifierSize.width - magnifierInset, magnifierInset)
+        let originY = superview.bounds.minY + magnifierInset
+
+        magnifierView.frame = CGRect(origin: CGPoint(x: originX, y: originY), size: magnifierSize)
+    }
+
+    private func seamPointInSuperview(for handle: HandlePosition) -> CGPoint {
+        let seamPoint = CGPoint(x: bounds.midX, y: handle == .top ? 0.0 : bounds.height)
+        return convert(seamPoint, to: superview)
+    }
+}
+
+private final class SeamMagnifierView: UIView {
+    private let imageView = UIImageView()
+    private let guideLine = UIView()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func update(image: UIImage) {
+        imageView.image = image
+    }
+
+    private func setupView() {
+        clipsToBounds = true
+        layer.cornerRadius = 12.0
+        layer.cornerCurve = .continuous
+        layer.borderWidth = 1.0
+        layer.borderColor = UIColor.white.withAlphaComponent(0.8).cgColor
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.18
+        layer.shadowRadius = 14.0
+        layer.shadowOffset = CGSize(width: 0, height: 8)
+        backgroundColor = UIColor.secondarySystemBackground
+
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        addSubview(imageView)
+
+        guideLine.translatesAutoresizingMaskIntoConstraints = false
+        guideLine.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.95)
+        addSubview(guideLine)
+
+        NSLayoutConstraint.activate([
+            imageView.topAnchor.constraint(equalTo: topAnchor),
+            imageView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            guideLine.centerYAnchor.constraint(equalTo: centerYAnchor),
+            guideLine.leadingAnchor.constraint(equalTo: leadingAnchor),
+            guideLine.trailingAnchor.constraint(equalTo: trailingAnchor),
+            guideLine.heightAnchor.constraint(equalToConstant: 2.0)
+        ])
     }
 }
