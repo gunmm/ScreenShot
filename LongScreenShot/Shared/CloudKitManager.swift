@@ -15,11 +15,23 @@ class CloudKitManager {
         }
     }
     
+    
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+    }
+
+    private var buildVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
+    }
+
+    
     func uploadFeedback(message: String, completion: @escaping (Bool, Error?) -> Void) {
         let record = CKRecord(recordType: "UserFeedback")
         record["message"] = message as CKRecordValue
         record["deviceModel"] = hardwareModel as CKRecordValue
         record["systemVersion"] = UIDevice.current.systemVersion as CKRecordValue
+        record["appVersion"] = appVersion as CKRecordValue
+        record["buildVersion"] = buildVersion as CKRecordValue
         record["userId"] = (UIDevice.current.identifierForVendor?.uuidString ?? "Unknown") as CKRecordValue
         
         let logURL = AppLogger.shared.currentLogFileURL
