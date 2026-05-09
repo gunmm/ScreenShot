@@ -978,6 +978,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
                 self.present(alert, animated: true)
             } else {
                 AppLogger.shared.log("Successfully saved photo to album.")
+                CloudKitManager.shared.uploadAutoLogIfNeeded()
                 self.statusLabel.text = NSLocalizedString("成功保存至相册!", comment: "Save success status")
                 
                 let alert = UIAlertController(title: NSLocalizedString("保存成功", comment: "Save success title"), message: NSLocalizedString("长截图已成功保存到相册。", comment: "Save success message"), preferredStyle: .alert)

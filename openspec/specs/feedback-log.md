@@ -14,11 +14,24 @@
 生成的所在目录为：`Documents/app_activity.log`。
 
 ### 2. 云端结构 (`CloudKitManager.swift`)
-依托 Apple iCloud 默认机制配置了 Public Database，应用侧将创建 `CKRecord` `(UserFeedback)`：
+依托 Apple iCloud 默认机制配置了 Public Database，应用侧将创建两类 `CKRecord`：
+- `UserFeedback`：用户主动提交反馈时写入。
+- `AutoLogUpload`：用户保存长截图成功后，满足限流条件时静默写入。
+
+两类记录共享以下字段：
 - `message (String)`：用户反馈的具体需求（必填）。
 - `deviceModel (String)`：抓取的 `UIDevice` 实体型号。
 - `systemVersion (String)`：如 `iOS 17.1`，便于复现设备异常。
+- `appVersion (String)`：应用版本号。
+- `buildVersion (String)`：构建号。
+- `userId (String)`：当前设备的 `identifierForVendor`。
 - `logFile (CKAsset)`：封装 `AppLogger` 输出文件的 URL，将几十KB至兆级信息一次性高速上抛。
+
+#### 自动上传限流（0029）
+保存成功后可触发一次静默自动日志上传，但系统必须使用本地持久化时间戳限流：**距离上次成功自动上传时间大于等于 24 小时** 才允许再次写入 `AutoLogUpload`。自动上传失败不得影响用户看到的保存成功提示。
+
+#### 日志快照上传（0029）
+自动上传不得直接引用正在写入中的原始日志文件，而应先复制出一份临时日志快照，再以该快照创建 `CKAsset`，上传完成后清理临时文件。
 
 #### 注意事项
 在开发者机器使用此功能及首次打包给用户前，`必须在 Xcode 的 Signing & Capability 中配置 CloudKit Container`，否则 CloudKitManager 将直接保存失败。
