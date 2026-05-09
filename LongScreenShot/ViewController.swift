@@ -991,7 +991,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     
     // MARK: - Review Prompt
     private func showReviewPromptIfNeeded() {
-        if UserDefaults.standard.bool(forKey: "hasReviewed") { return }
+        if hasHandledReviewPrompt { return }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             guard let self = self else { return }
@@ -1002,9 +1002,11 @@ class ViewController: UIViewController, UIScrollViewDelegate {
                 preferredStyle: .alert
             )
             
-            alert.addAction(UIAlertAction(title: NSLocalizedString("以后再说", comment: "Later action"), style: .cancel))
+            alert.addAction(UIAlertAction(title: NSLocalizedString("不再提示", comment: "Do not ask again action"), style: .cancel, handler: { _ in
+                self.markReviewPromptDismissed()
+            }))
             alert.addAction(UIAlertAction(title: NSLocalizedString("去给好评", comment: "Go review action"), style: .default, handler: { _ in
-                UserDefaults.standard.set(true, forKey: "hasReviewed")
+                self.markReviewPromptReviewed()
                 if let url = URL(string: "https://apps.apple.com/app/id6759634662?action=write-review") {
                     UIApplication.shared.open(url)
                 }
@@ -1013,6 +1015,22 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             self.present(alert, animated: true)
         }
     }
+
+    private var hasHandledReviewPrompt: Bool {
+        let defaults = UserDefaults.standard
+        return defaults.bool(forKey: Self.hasReviewedKey) || defaults.bool(forKey: Self.hasDismissedReviewPromptKey)
+    }
+
+    private func markReviewPromptReviewed() {
+        UserDefaults.standard.set(true, forKey: Self.hasReviewedKey)
+    }
+
+    private func markReviewPromptDismissed() {
+        UserDefaults.standard.set(true, forKey: Self.hasDismissedReviewPromptKey)
+    }
+
+    private static let hasReviewedKey = "hasReviewed"
+    private static let hasDismissedReviewPromptKey = "hasDismissedReviewPrompt"
 
 #if DEBUG
     @objc private func showPreview() {

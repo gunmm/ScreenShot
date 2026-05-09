@@ -85,7 +85,7 @@
 "用于将生成的长截图保存到相册。" = "This is required to save the generated long screenshot to Photos.";
 "选择编辑方式" = "Choose Editing Mode";
 "选择导出格式" = "Choose Export Format";
-"以后再说" = "Maybe Later";
+"不再提示" = "Don't Ask Again";
 "用户反馈" = "User Feedback";
 "长截图已成功保存到相册。" = "The long screenshot has been saved to your Photos.";
 "正在恢复..." = "Restoring...";
