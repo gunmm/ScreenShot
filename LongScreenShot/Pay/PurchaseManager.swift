@@ -9,6 +9,10 @@ import Foundation
 import StoreKit
 import UIKit
 
+struct PurchaseProductInfo {
+    let localizedPrice: String
+}
+
 class PurchaseManager: NSObject {
     static let shared = PurchaseManager()
     
@@ -20,6 +24,9 @@ class PurchaseManager: NSObject {
     
     // 支付完成回调
     private var purchaseCompletion: ((Bool) -> Void)?
+    private var productRequest: SKProductsRequest?
+    private var productCompletions: [(SKProduct?) -> Void] = []
+    private var cachedProduct: SKProduct?
     
     private override init() {
         super.init()
@@ -34,6 +41,25 @@ class PurchaseManager: NSObject {
     // 检查是否已付费
     func isPurchased() -> Bool {
         return purchaseStatusManager.isPurchased()
+    }
+
+    var currentProductInfo: PurchaseProductInfo? {
+        guard let product = cachedProduct else {
+            return nil
+        }
+
+        return PurchaseProductInfo(localizedPrice: localizedPrice(for: product))
+    }
+
+    func loadProductInfo(completion: @escaping (PurchaseProductInfo?) -> Void) {
+        fetchProduct { [weak self] product in
+            guard let self = self, let product = product else {
+                completion(nil)
+                return
+            }
+
+            completion(PurchaseProductInfo(localizedPrice: self.localizedPrice(for: product)))
+        }
     }
     
     // 请求支付
@@ -57,11 +83,23 @@ class PurchaseManager: NSObject {
         }
         
         purchaseCompletion = completion
-        
-        // 请求商品信息
-        let request = SKProductsRequest(productIdentifiers: [productId])
-        request.delegate = self
-        request.start()
+
+        fetchProduct { [weak self] product in
+            guard let self = self else { return }
+            guard let product = product else {
+                AppLogger.shared.log("requestPurchase: Failed to retrieve product info before purchase")
+                DispatchQueue.main.async {
+                    self.showAlert(title: "支付失败", message: "无法获取商品信息")
+                }
+                self.purchaseCompletion?(false)
+                self.purchaseCompletion = nil
+                return
+            }
+
+            AppLogger.shared.log("requestPurchase: Successfully loaded product \(product.productIdentifier). Adding payment.")
+            let payment = SKPayment(product: product)
+            SKPaymentQueue.default().add(payment)
+        }
     }
     
     // 恢复购买
@@ -89,6 +127,42 @@ class PurchaseManager: NSObject {
             presentedVC.present(alert, animated: true)
         }
     }
+
+    private func fetchProduct(completion: @escaping (SKProduct?) -> Void) {
+        if let cachedProduct {
+            completion(cachedProduct)
+            return
+        }
+
+        productCompletions.append(completion)
+
+        guard productRequest == nil else {
+            return
+        }
+
+        let request = SKProductsRequest(productIdentifiers: [productId])
+        request.delegate = self
+        productRequest = request
+        request.start()
+    }
+
+    private func completeProductRequest(with product: SKProduct?) {
+        if let product {
+            cachedProduct = product
+        }
+
+        let completions = productCompletions
+        productCompletions.removeAll()
+        productRequest = nil
+        completions.forEach { $0(product) }
+    }
+
+    private func localizedPrice(for product: SKProduct) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = product.priceLocale
+        return formatter.string(from: product.price) ?? product.price.stringValue
+    }
 }
 
 // MARK: - SKProductsRequestDelegate
@@ -96,28 +170,17 @@ extension PurchaseManager: SKProductsRequestDelegate {
     func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
         guard let product = response.products.first else {
             AppLogger.shared.log("productsRequest: Failed to retrieve product info (array empty)")
-            DispatchQueue.main.async {
-                self.showAlert(title: "支付失败", message: "无法获取商品信息")
-            }
-            purchaseCompletion?(false)
-            purchaseCompletion = nil
+            completeProductRequest(with: nil)
             return
         }
-        
-        AppLogger.shared.log("productsRequest: Successfully loaded product \(product.productIdentifier). Adding payment.")
-        
-        // 发起支付
-        let payment = SKPayment(product: product)
-        SKPaymentQueue.default().add(payment)
+
+        AppLogger.shared.log("productsRequest: Successfully loaded product \(product.productIdentifier)")
+        completeProductRequest(with: product)
     }
     
     func request(_ request: SKRequest, didFailWithError error: Error) {
         AppLogger.shared.log("productsRequest: App Store request failed with error: \(error.localizedDescription)")
-        DispatchQueue.main.async {
-            self.showAlert(title: "支付失败", message: error.localizedDescription)
-        }
-        purchaseCompletion?(false)
-        purchaseCompletion = nil
+        completeProductRequest(with: nil)
     }
 }
 

@@ -7,7 +7,7 @@ class EditViewController: UIViewController {
     private var currentRanges: [(start: Int, end: Int)]
     
     // Callbacks
-    var onConfirm: (([(start: Int, end: Int)]) -> Void)?
+    var onConfirm: ((EditViewController, [(start: Int, end: Int)]) -> Void)?
     
     // UI Elements
     private let hintLabel = UILabel()
@@ -101,10 +101,7 @@ class EditViewController: UIViewController {
     }
     
     @objc private func doneTapped() {
-        dismiss(animated: true) { [weak self] in
-            guard let self = self else { return }
-            self.onConfirm?(self.currentRanges)
-        }
+        onConfirm?(self, currentRanges)
     }
 }
 

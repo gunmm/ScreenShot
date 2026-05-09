@@ -4,12 +4,12 @@ final class MarkupEntryViewController: UIViewController, UITableViewDataSource, 
 
     private static let entryRowHeight: CGFloat = 74
 
-    private enum Destination {
+    fileprivate enum Destination {
         case markup
         case mosaic
     }
 
-    private struct Entry {
+    fileprivate struct Entry {
         let id = UUID()
         var title: String
         var subtitle: String
@@ -74,7 +74,7 @@ final class MarkupEntryViewController: UIViewController, UITableViewDataSource, 
         tableView.rowHeight = Self.entryRowHeight
         tableView.estimatedRowHeight = Self.entryRowHeight
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 56, bottom: 0, right: 16)
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "EntryCell")
+        tableView.register(ProEntryCell.self, forCellReuseIdentifier: "EntryCell")
         if #available(iOS 15.0, *) {
             tableView.sectionHeaderTopPadding = 0
         }
@@ -124,27 +124,12 @@ final class MarkupEntryViewController: UIViewController, UITableViewDataSource, 
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "EntryCell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "EntryCell", for: indexPath) as? ProEntryCell else {
+            return UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        }
         let entry = entries[indexPath.section]
 
-        var content = UIListContentConfiguration.subtitleCell()
-        content.text = entry.title
-        content.secondaryText = entry.subtitle
-        content.textProperties.font = .systemFont(ofSize: 17, weight: .semibold)
-        content.secondaryTextProperties.font = .systemFont(ofSize: 13)
-        content.secondaryTextProperties.color = .secondaryLabel
-        content.secondaryTextProperties.numberOfLines = 1
-        content.secondaryTextProperties.lineBreakMode = .byTruncatingTail
-        content.image = UIImage(systemName: entry.iconName)
-        content.imageProperties.tintColor = entry.accentColor
-        content.imageProperties.cornerRadius = 8
-        content.imageProperties.maximumSize = CGSize(width: 22, height: 22)
-        content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 12, leading: 4, bottom: 12, trailing: 4)
-
-        cell.contentConfiguration = content
-        cell.accessoryType = .disclosureIndicator
-        cell.selectionStyle = .default
-        cell.backgroundColor = .secondarySystemGroupedBackground
+        cell.configure(with: entry)
         return cell
     }
 
@@ -155,5 +140,128 @@ final class MarkupEntryViewController: UIViewController, UITableViewDataSource, 
 
     @objc private func cancelTapped() {
         dismiss(animated: true)
+    }
+}
+
+private final class ProEntryCell: UITableViewCell {
+    private let iconContainer = UIView()
+    private let iconView = UIImageView()
+    private let titleLabel = UILabel()
+    private let subtitleLabel = UILabel()
+    private let textStack = UIStackView()
+    private let chevronView = UIImageView()
+    private let ribbonLabel = PaddingLabel()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupUI() {
+        selectionStyle = .default
+        backgroundColor = .secondarySystemGroupedBackground
+        accessoryType = .none
+        clipsToBounds = false
+        contentView.clipsToBounds = false
+
+        iconContainer.translatesAutoresizingMaskIntoConstraints = false
+        iconContainer.backgroundColor = UIColor.systemGray6
+        iconContainer.layer.cornerRadius = 12
+        contentView.addSubview(iconContainer)
+
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconView.contentMode = .scaleAspectFit
+        iconContainer.addSubview(iconView)
+
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.font = .systemFont(ofSize: 17, weight: .semibold)
+        titleLabel.textColor = .label
+
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subtitleLabel.font = .systemFont(ofSize: 13)
+        subtitleLabel.textColor = .secondaryLabel
+        subtitleLabel.numberOfLines = 1
+        subtitleLabel.lineBreakMode = .byTruncatingTail
+
+        textStack.translatesAutoresizingMaskIntoConstraints = false
+        textStack.axis = .vertical
+        textStack.alignment = .fill
+        textStack.spacing = 3
+        textStack.addArrangedSubview(titleLabel)
+        textStack.addArrangedSubview(subtitleLabel)
+        contentView.addSubview(textStack)
+
+        chevronView.translatesAutoresizingMaskIntoConstraints = false
+        chevronView.image = UIImage(systemName: "chevron.right")
+        chevronView.tintColor = .tertiaryLabel
+        chevronView.contentMode = .scaleAspectFit
+        contentView.addSubview(chevronView)
+
+        ribbonLabel.text = NSLocalizedString("PRO", comment: "Pro badge")
+        ribbonLabel.font = .systemFont(ofSize: 8, weight: .heavy)
+        ribbonLabel.textColor = .white
+        ribbonLabel.backgroundColor = .systemOrange
+        ribbonLabel.textAlignment = .center
+        ribbonLabel.horizontalPadding = 8
+        ribbonLabel.verticalPadding = 2
+        ribbonLabel.layer.cornerRadius = 6
+        ribbonLabel.layer.masksToBounds = true
+        ribbonLabel.transform = CGAffineTransform(rotationAngle: -.pi / 10)
+        ribbonLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(ribbonLabel)
+
+        NSLayoutConstraint.activate([
+            iconContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 14),
+            iconContainer.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            iconContainer.widthAnchor.constraint(equalToConstant: 40),
+            iconContainer.heightAnchor.constraint(equalToConstant: 40),
+
+            iconView.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor),
+            iconView.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 22),
+            iconView.heightAnchor.constraint(equalToConstant: 22),
+
+            chevronView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
+            chevronView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            chevronView.widthAnchor.constraint(equalToConstant: 10),
+            chevronView.heightAnchor.constraint(equalToConstant: 16),
+
+            textStack.leadingAnchor.constraint(equalTo: iconContainer.trailingAnchor, constant: 14),
+            textStack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            textStack.trailingAnchor.constraint(equalTo: chevronView.leadingAnchor, constant: -14),
+
+            ribbonLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            ribbonLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 6),
+            ribbonLabel.heightAnchor.constraint(equalToConstant: 14),
+            ribbonLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 26)
+        ])
+    }
+
+    func configure(with entry: MarkupEntryViewController.Entry) {
+        titleLabel.text = entry.title
+        subtitleLabel.text = entry.subtitle
+        iconView.image = UIImage(systemName: entry.iconName)
+        iconView.tintColor = entry.accentColor
+        iconContainer.backgroundColor = entry.accentColor.withAlphaComponent(0.12)
+        contentView.bringSubviewToFront(ribbonLabel)
+    }
+}
+
+private final class PaddingLabel: UILabel {
+    var horizontalPadding: CGFloat = 0
+    var verticalPadding: CGFloat = 0
+
+    override var intrinsicContentSize: CGSize {
+        let size = super.intrinsicContentSize
+        return CGSize(width: size.width + horizontalPadding * 2, height: size.height + verticalPadding * 2)
+    }
+
+    override func drawText(in rect: CGRect) {
+        let insetRect = rect.insetBy(dx: horizontalPadding, dy: verticalPadding)
+        super.drawText(in: insetRect)
     }
 }

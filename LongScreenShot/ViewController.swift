@@ -19,11 +19,13 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     private let saveButton = UIButton(type: .system)
     private let unlockProButton = UIButton(type: .system) // New unlock button
     private var rawStitchedImage: UIImage? // Store raw image without watermark
+    private var baseStitchedImage: UIImage?
     private var hasMarkupEdits = false
     private let statusLabel = UILabel()
     private let guideLabel = UILabel()
     private let demoButton = UIButton(type: .system)
     private let clearButton = UIButton(type: .system)
+    private let proAccessCoordinator = ProAccessCoordinator.shared
     
     private let actionsStack = UIStackView()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
@@ -57,9 +59,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        PurchaseStatusManager.shared.setPurchased(false)
         setupUI()
         state = .idle
+        proAccessCoordinator.preloadProductInfo()
         
         // Auto-stitch if chunks exist on load
 //        autoGenerateIfPossible()
@@ -161,20 +163,27 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         editButton.setTitle(NSLocalizedString("拼接调整", comment: "Edit button"), for: .normal)
         editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
         editButton.isEnabled = false
+        addProBadge(to: editButton)
         
         markupButton.setTitle(NSLocalizedString("涂抹/打码", comment: "Markup button"), for: .normal)
         markupButton.addTarget(self, action: #selector(markupResult), for: .touchUpInside)
         markupButton.isEnabled = false
+        addProBadge(to: markupButton)
         
         saveButton.setTitle(NSLocalizedString("保存", comment: "Save button"), for: .normal)
         saveButton.addTarget(self, action: #selector(showSaveOptions), for: .touchUpInside)
         saveButton.isEnabled = false
         
-        unlockProButton.setTitle(NSLocalizedString("去水印", comment: "Unlock Pro button"), for: .normal)
-        unlockProButton.setTitleColor(.systemBlue, for: .normal)
-        unlockProButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        unlockProButton.setTitle(NSLocalizedString("Pro去水印", comment: "Unlock Pro button"), for: .normal)
+        unlockProButton.setTitleColor(.systemOrange, for: .normal)
+        unlockProButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .bold)
+        unlockProButton.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.12)
+        unlockProButton.layer.cornerRadius = 16
+        unlockProButton.layer.borderWidth = 1
+        unlockProButton.layer.borderColor = UIColor.systemOrange.withAlphaComponent(0.35).cgColor
+        unlockProButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         unlockProButton.addTarget(self, action: #selector(unlockProTapped), for: .touchUpInside)
-        unlockProButton.isHidden = PurchaseStatusManager.shared.isPurchased()
+        unlockProButton.isHidden = proAccessCoordinator.isProUser()
         unlockProButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(unlockProButton)
         
@@ -270,7 +279,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             unlockProButton.bottomAnchor.constraint(equalTo: actionsStack.topAnchor, constant: -16),
             unlockProButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             unlockProButton.heightAnchor.constraint(equalToConstant: 32),
-            unlockProButton.widthAnchor.constraint(equalToConstant: 76),
+            unlockProButton.widthAnchor.constraint(equalToConstant: 96),
             
             scrollView.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 20),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -374,6 +383,40 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             imageAspectRatioConstraint?.isActive = true
         }
     }
+
+    private func makePresentationImage(from image: UIImage) -> UIImage {
+        proAccessCoordinator.isProUser() ? image : addFullScreenWatermark(to: image)
+    }
+
+    private func refreshDisplayedImage() {
+        guard let rawStitchedImage else {
+            display(image: nil)
+            return
+        }
+
+        unlockProButton.isHidden = proAccessCoordinator.isProUser()
+        display(image: makePresentationImage(from: rawStitchedImage))
+    }
+
+    private func addProBadge(to button: UIButton) {
+        let badgeLabel = UILabel()
+        badgeLabel.text = NSLocalizedString("PRO", comment: "Pro badge")
+        badgeLabel.font = .systemFont(ofSize: 8, weight: .heavy)
+        badgeLabel.textColor = .white
+        badgeLabel.backgroundColor = .systemOrange
+        badgeLabel.textAlignment = .center
+        badgeLabel.layer.cornerRadius = 6
+        badgeLabel.layer.masksToBounds = true
+        badgeLabel.translatesAutoresizingMaskIntoConstraints = false
+        button.addSubview(badgeLabel)
+
+        NSLayoutConstraint.activate([
+            badgeLabel.topAnchor.constraint(equalTo: button.topAnchor, constant: -3),
+            badgeLabel.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: 4),
+            badgeLabel.heightAnchor.constraint(equalToConstant: 14),
+            badgeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 26)
+        ])
+    }
     
     @objc private func generateLongScreenshot() {
         // Quick pre-check (avoid loading all images if empty)
@@ -417,9 +460,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             DispatchQueue.main.async {
                 if let result = stitchedImage {
                     self.rawStitchedImage = result
+                    self.baseStitchedImage = result
                     self.hasMarkupEdits = false
-                    let displayImage = PurchaseStatusManager.shared.isPurchased() ? result : self.addFullScreenWatermark(to: result)
-                    self.display(image: displayImage)
+                    self.refreshDisplayedImage()
                     self.state = .generated(size: result.size, images: chunks, ranges: ranges)
                 } else {
                     self.state = .failed(message: NSLocalizedString("""
@@ -447,6 +490,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             ChunkManager.shared.clearAllChunks()
             self?.display(image: nil)
             self?.rawStitchedImage = nil
+            self?.baseStitchedImage = nil
             self?.hasMarkupEdits = false
             self?.state = .idle
         }))
@@ -485,10 +529,12 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         let entryVC = MarkupEntryViewController(image: image)
         entryVC.onConfirm = { [weak self] newImage in
             guard let self = self else { return }
+            if !self.hasMarkupEdits {
+                self.baseStitchedImage = self.rawStitchedImage
+            }
             self.rawStitchedImage = newImage
             self.hasMarkupEdits = true
-            let displayImage = PurchaseStatusManager.shared.isPurchased() ? newImage : self.addFullScreenWatermark(to: newImage)
-            self.display(image: displayImage)
+            self.refreshDisplayedImage()
         }
         
         let nav = UINavigationController(rootViewController: entryVC)
@@ -505,9 +551,9 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             DispatchQueue.main.async {
                 if let result = stitchedImage {
                     self.rawStitchedImage = result
+                    self.baseStitchedImage = result
                     self.hasMarkupEdits = false
-                    let displayImage = PurchaseStatusManager.shared.isPurchased() ? result : self.addFullScreenWatermark(to: result)
-                    self.display(image: displayImage)
+                    self.refreshDisplayedImage()
                     self.state = .generated(size: result.size, images: images, ranges: newRanges)
                 } else {
                     self.state = .failed(message: NSLocalizedString("根据新裁剪参数拼接失败。", comment: "Error editing failed"))
@@ -518,8 +564,8 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 
     private func presentEditResult(images: [UIImage], ranges: [(start: Int, end: Int)]) {
         let editVC = EditViewController(images: images, initialRanges: ranges)
-        editVC.onConfirm = { [weak self] newRanges in
-            self?.applyNewRanges(newRanges, to: images)
+        editVC.onConfirm = { [weak self] controller, newRanges in
+            self?.handleEditCompletion(from: controller, newRanges: newRanges, images: images)
         }
 
         let nav = UINavigationController(rootViewController: editVC)
@@ -528,16 +574,16 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     @objc private func showSaveOptions() {
-        guard let image = imageView.image else { return }
+        guard rawStitchedImage != nil else { return }
         
         let actionSheet = UIAlertController(title: nil, message: NSLocalizedString("选择导出格式", comment: "Choose export format"), preferredStyle: .actionSheet)
         
         actionSheet.addAction(UIAlertAction(title: NSLocalizedString("保存图片到相册", comment: "Save Image to Photos"), style: .default, handler: { [weak self] _ in
-            self?.performSave(image: image)
+            self?.handleSaveImageAction()
         }))
         
-        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("分享为 PDF", comment: "Share as PDF"), style: .default, handler: { [weak self] _ in
-            self?.generatePDFAndShare(image: image)
+        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("分享为 PDF（Pro可用）", comment: "Share as PDF pro only"), style: .default, handler: { [weak self] _ in
+            self?.handlePDFExportAction()
         }))
         
         actionSheet.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel"), style: .cancel))
@@ -616,45 +662,52 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     @objc private func unlockProTapped() {
-        let alert = UIAlertController(
-            title: NSLocalizedString("解锁 Pro 权限", comment: "Unlock Pro title"),
-            message: NSLocalizedString("只需支付 18 元即可解锁永久 Pro 权限，感谢支持", comment: "Unlock Pro message"),
-            preferredStyle: .alert
+        presentProPaywall(
+            from: self,
+            gate: .removeWatermark,
+            onPurchased: { [weak self] in
+                self?.refreshDisplayedImage()
+            }
         )
-        
-        alert.addAction(UIAlertAction(title: NSLocalizedString("取消", comment: "Cancel action"), style: .cancel))
-        alert.addAction(UIAlertAction(title: NSLocalizedString("去支付", comment: "Pay action"), style: .default, handler: { [weak self] _ in
-            self?.performPurchase()
-        }))
-        
-        present(alert, animated: true)
     }
-    
-    private func performPurchase() {
+
+    private func performPurchase(
+        from presenter: UIViewController,
+        showSystemLoading: Bool = true,
+        completion: ((Bool) -> Void)? = nil
+    ) {
         let loadingAlert = UIAlertController(title: nil, message: NSLocalizedString("正在请求支付...", comment: "Requesting purchase loading"), preferredStyle: .alert)
         let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = .medium
         loadingIndicator.startAnimating()
         loadingAlert.view.addSubview(loadingIndicator)
-        
-        present(loadingAlert, animated: true) {
+
+        let startPurchase = {
             PurchaseManager.shared.requestPurchase { [weak self] success in
                 DispatchQueue.main.async {
-                    loadingAlert.dismiss(animated: true) {
+                    let finish = {
                         if success {
-                            self?.unlockProButton.isHidden = true
-                            if let raw = self?.rawStitchedImage {
-                                self?.display(image: raw)
-                            }
-                            
-                            let successAlert = UIAlertController(title: NSLocalizedString("购买成功", comment: "Purchase success title"), message: NSLocalizedString("感谢您的支持！", comment: "Purchase success message"), preferredStyle: .alert)
-                            successAlert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "OK action"), style: .default))
-                            self?.present(successAlert, animated: true)
+                            self?.refreshDisplayedImage()
                         }
+                        completion?(success)
+                    }
+
+                    if showSystemLoading {
+                        loadingAlert.dismiss(animated: true, completion: finish)
+                    } else {
+                        finish()
                     }
                 }
             }
+        }
+
+        if showSystemLoading {
+            presenter.present(loadingAlert, animated: true) {
+                startPurchase()
+            }
+        } else {
+            startPurchase()
         }
     }
     
@@ -726,6 +779,135 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         return watermarkedImage ?? image
     }
+
+    private func exportImageForCurrentState() -> UIImage? {
+        guard let rawStitchedImage else {
+            return nil
+        }
+
+        return makePresentationImage(from: rawStitchedImage)
+    }
+
+    private func handleSaveImageAction() {
+        guard let exportImage = exportImageForCurrentState() else {
+            return
+        }
+
+        if !proAccessCoordinator.isProUser() && hasMarkupEdits {
+            presentProPaywall(
+                from: self,
+                gate: .saveMarkupEffects,
+                alternativeActionTitle: NSLocalizedString("移除效果", comment: "Remove effects action"),
+                alternativeActionStyle: .destructive,
+                alternativeHandler: { [weak self] in
+                    self?.removeRestrictedEffectsAndSave()
+                },
+                onPurchased: { [weak self] in
+                    guard let self, let upgradedImage = self.exportImageForCurrentState() else { return }
+                    self.performSave(image: upgradedImage)
+                }
+            )
+            return
+        }
+
+        performSave(image: exportImage)
+    }
+
+    private func handlePDFExportAction() {
+        guard let rawStitchedImage else {
+            return
+        }
+
+        if !proAccessCoordinator.isProUser() {
+            presentProPaywall(
+                from: self,
+                gate: .exportPDF,
+                onPurchased: { [weak self] in
+                    guard let self, let upgradedImage = self.rawStitchedImage else { return }
+                    self.generatePDFAndShare(image: upgradedImage)
+                }
+            )
+            return
+        }
+
+        generatePDFAndShare(image: rawStitchedImage)
+    }
+
+    private func removeRestrictedEffectsAndSave() {
+        guard let baseImage = baseStitchedImage else {
+            return
+        }
+
+        rawStitchedImage = baseImage
+        hasMarkupEdits = false
+        refreshDisplayedImage()
+
+        if let exportImage = exportImageForCurrentState() {
+            performSave(image: exportImage)
+        }
+    }
+
+    private func handleEditCompletion(from controller: EditViewController, newRanges: [(start: Int, end: Int)], images: [UIImage]) {
+        if proAccessCoordinator.isProUser() {
+            controller.dismiss(animated: true) { [weak self] in
+                self?.applyNewRanges(newRanges, to: images)
+            }
+            return
+        }
+
+        presentProPaywall(
+            from: controller,
+            gate: .applyStitchAdjustment,
+            onPurchased: { [weak self, weak controller] in
+                controller?.dismiss(animated: true) {
+                    self?.applyNewRanges(newRanges, to: images)
+                }
+            }
+        )
+    }
+
+    private func presentProPaywall(
+        from presenter: UIViewController,
+        gate: ProFeatureGate,
+        alternativeActionTitle: String? = nil,
+        alternativeActionStyle: UIAlertAction.Style = .default,
+        alternativeHandler: (() -> Void)? = nil,
+        onPurchased: (() -> Void)? = nil
+    ) {
+        let paywallViewController = ProPaywallViewController(
+            coordinator: proAccessCoordinator,
+            gate: gate,
+            alternativeActionTitle: alternativeActionTitle,
+            alternativeActionStyle: alternativeActionStyle
+        )
+
+        paywallViewController.onPrimaryAction = { [weak self, weak paywallViewController, weak presenter] in
+            guard let self, let paywallViewController else { return }
+            paywallViewController.setLoading(true)
+            self.performPurchase(from: presenter ?? paywallViewController, showSystemLoading: false) { success in
+                paywallViewController.setLoading(false)
+                if success {
+                    paywallViewController.dismiss(animated: true) {
+                        onPurchased?()
+                    }
+                }
+            }
+        }
+
+        paywallViewController.onSecondaryAction = {
+            paywallViewController.dismiss(animated: true)
+        }
+
+        paywallViewController.onAlternativeAction = {
+            paywallViewController.dismiss(animated: true) {
+                alternativeHandler?()
+            }
+        }
+
+        paywallViewController.modalPresentationStyle = .overFullScreen
+        paywallViewController.modalTransitionStyle = .crossDissolve
+        presenter.present(paywallViewController, animated: true)
+    }
     
     private func performSave(image: UIImage) {
         AppLogger.shared.log("Requesting photo authorization...")
@@ -748,46 +930,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             PHPhotoLibrary.requestAuthorization(for: .addOnly, handler: handler)
         } else {
             PHPhotoLibrary.requestAuthorization(handler)
-        }
-    }
-    
-    private func requestPurchaseAndSave() {
-        let loadingAlert = UIAlertController(title: nil, message: NSLocalizedString("正在请求支付...", comment: "Requesting purchase loading"), preferredStyle: .alert)
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = .medium
-        loadingIndicator.startAnimating()
-        loadingAlert.view.addSubview(loadingIndicator)
-        
-        let startFlow = { [weak self] in
-            guard let self = self else { return }
-            self.present(loadingAlert, animated: true)
-            
-            PurchaseManager.shared.requestPurchase { success in
-                DispatchQueue.main.async {
-                    let finishAction = {
-                        if success {
-                            if let image = self.imageView.image {
-                                self.performSave(image: image)
-                            }
-                        }
-                    }
-                    
-                    if loadingAlert.presentingViewController != nil {
-                        loadingAlert.dismiss(animated: true, completion: finishAction)
-                    } else {
-                        finishAction()
-                    }
-                }
-            }
-        }
-        
-        if presentedViewController != nil {
-            dismiss(animated: true) {
-                startFlow()
-            }
-        } else {
-            startFlow()
         }
     }
     

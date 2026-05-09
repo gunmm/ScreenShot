@@ -17,6 +17,7 @@
 "丢弃已涂抹效果？" = "Discard current masking edits?";
 "反馈内容不能为空" = "Feedback content cannot be empty.";
 "分享为 PDF" = "Share as PDF";
+"分享为 PDF（Pro可用）" = "Share as PDF (Pro)";
 "感谢您的反馈！" = "Thank you for your feedback!";
 "感谢您的支持！" = "Thank you for your support!";
 "根据新裁剪参数拼接失败。" = "Stitching failed with the updated crop settings.";
@@ -43,7 +44,7 @@
 "去给好评" = "Rate Now";
 "去设置" = "Go to Settings";
 "去水印" = "Remove Watermark";
-"去支付" = "Pay Now";
+"Pro去水印" = "Pro Remove Watermark";
 "确定" = "OK";
 "确定要清理当前的截图数据吗？此操作不可撤销。" = "Are you sure you want to clear the current screenshot data? This action cannot be undone.";
 "如果这个应用对您有帮助，请给个好评支持一下开发者，感谢！" = "If this app has been helpful, please leave a rating to support the developer. Thank you!";
@@ -51,6 +52,8 @@
 "生成 PDF 失败" = "Failed to Generate PDF";
 "生成成功：%d×%d。现在你可以保存了。" = "Generated successfully: %d×%d. You can save it now.";
 "生成结果图" = "Generate Image";
+"立即解锁永久 Pro，仅需 %@。" = "Unlock permanent Pro now for %@.";
+"立即解锁永久 Pro，解锁全部权益。" = "Unlock permanent Pro now to get all benefits.";
 "使用现有画笔工具进行自由遮挡" = "Use the existing brush tool for freeform masking.";
 "视频演示" = "Video Demo";
 "提交" = "Submit";
@@ -58,8 +61,21 @@
 "提交失败" = "Submission Failed";
 "提示" = "Notice";
 "透明度" = "Opacity";
+"PRO" = "PRO";
+"Pro 权益：" = "Pro benefits:";
+"PDF 导出属于 Pro 权益。" = "PDF export is a Pro feature.";
+"1. 拼接调整" = "1. Stitch adjustment";
+"2. 去水印" = "2. Remove watermark";
+"3. 涂抹、打码" = "3. Brush and mosaic";
+"4. 保存 PDF" = "4. Save PDF";
+"升级 Pro" = "Upgrade Pro";
+"永久权益，一次支付即可长期使用。\n无订阅、无自动续费，解锁后可一直使用当前 Pro 功能。" = "Permanent access with a one-time purchase.\nNo subscription, no auto-renewal, and the current Pro features stay available after unlocking.";
+"去水印属于 Pro 权益。" = "Removing the watermark is a Pro feature.";
+"拼接调整结果应用属于 Pro 权益。" = "Applying stitch adjustments is a Pro feature.";
+"移除效果" = "Remove Effects";
 "涂抹" = "Brush";
 "涂抹/打码" = "Mask / Mosaic";
+"涂抹和打码效果保存属于 Pro 权益。" = "Saving brush and mosaic effects is a Pro feature.";
 "涂鸦/打码" = "Draw / Mask";
 "完成" = "Done";
 "未知错误" = "Unknown Error";
@@ -77,6 +93,5 @@
 "正在请求支付..." = "Requesting purchase...";
 "正在上传..." = "Uploading...";
 "正在生成 PDF..." = "Generating PDF...";
-"只需支付 18 元即可解锁永久 Pro 权限，感谢支持" = "Unlock permanent Pro access for only 18 RMB. Thank you for your support.";
 "重试" = "Retry";
 "准备就绪。请先开始录制，然后滚动内容。" = "Ready. Start recording, then scroll the content.";
