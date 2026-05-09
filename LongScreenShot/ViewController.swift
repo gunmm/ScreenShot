@@ -59,6 +59,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        PurchaseStatusManager.shared.setPurchased(false)
         setupUI()
         state = .idle
         proAccessCoordinator.preloadProductInfo()
@@ -68,6 +69,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         // Auto-stitch when returning from background
         NotificationCenter.default.addObserver(self, selector: #selector(autoGenerateIfPossible), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handlePurchaseStatusDidChange), name: .purchaseStatusDidChange, object: nil)
     }
     
     deinit {
@@ -388,14 +390,27 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         proAccessCoordinator.isProUser() ? image : addFullScreenWatermark(to: image)
     }
 
+    private func refreshProStateUI() {
+        unlockProButton.isHidden = proAccessCoordinator.isProUser()
+    }
+
     private func refreshDisplayedImage() {
+        refreshProStateUI()
+
         guard let rawStitchedImage else {
             display(image: nil)
             return
         }
 
-        unlockProButton.isHidden = proAccessCoordinator.isProUser()
         display(image: makePresentationImage(from: rawStitchedImage))
+    }
+
+    @objc private func handlePurchaseStatusDidChange() {
+        refreshProStateUI()
+
+        if rawStitchedImage != nil {
+            refreshDisplayedImage()
+        }
     }
 
     private func addProBadge(to button: UIButton) {

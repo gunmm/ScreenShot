@@ -9,6 +9,10 @@ import Foundation
 import StoreKit
 import UIKit
 
+extension Notification.Name {
+    static let purchaseStatusDidChange = Notification.Name("PurchaseStatusDidChange")
+}
+
 struct PurchaseProductInfo {
     let localizedPrice: String
 }
@@ -163,6 +167,12 @@ class PurchaseManager: NSObject {
         formatter.locale = product.priceLocale
         return formatter.string(from: product.price) ?? product.price.stringValue
     }
+
+    private func notifyPurchaseStatusDidChange() {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .purchaseStatusDidChange, object: nil)
+        }
+    }
 }
 
 // MARK: - SKProductsRequestDelegate
@@ -250,6 +260,7 @@ extension PurchaseManager: SKPaymentTransactionObserver {
         
         // 更新付费状态
         purchaseStatusManager.setPurchased(true)
+        notifyPurchaseStatusDidChange()
         
 //        DispatchQueue.main.async {
 //            self.showAlert(title: "支付成功", message: "感谢您的支持！")
@@ -288,5 +299,6 @@ extension PurchaseManager: SKPaymentTransactionObserver {
         
         // 更新付费状态
         purchaseStatusManager.setPurchased(true)
+        notifyPurchaseStatusDidChange()
     }
 }
