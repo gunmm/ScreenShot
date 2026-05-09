@@ -45,6 +45,7 @@ final class ProPaywallViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        AppLogger.shared.log("ProPaywall shown: gate=\(gate)")
         setupUI()
         populateContent()
     }
@@ -282,14 +283,18 @@ final class ProPaywallViewController: UIViewController {
     }
 
     @objc private func handlePrimaryAction() {
+        AppLogger.shared.log("ProPaywall primary tapped: gate=\(gate)")
         onPrimaryAction?()
     }
 
     @objc private func handleSecondaryAction() {
+        AppLogger.shared.log("ProPaywall secondary tapped: gate=\(gate)")
         onSecondaryAction?()
     }
 
     @objc private func handleAlternativeAction() {
+        let actionTitle = alternativeActionTitle ?? "unknown"
+        AppLogger.shared.log("ProPaywall alternative tapped: gate=\(gate), action=\(actionTitle)")
         onAlternativeAction?()
     }
 }

@@ -597,6 +597,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     private func generatePDFAndShare(image: UIImage) {
+        AppLogger.shared.log("generatePDFAndShare: started")
         let loadingAlert = UIAlertController(title: nil, message: NSLocalizedString("正在生成 PDF...", comment: "Generating PDF loading"), preferredStyle: .alert)
         let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
@@ -651,6 +652,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     private func sharePDF(fileURL: URL) {
+        AppLogger.shared.log("sharePDF: presenting share sheet for \(fileURL.lastPathComponent)")
         let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
         
         if let popover = activityVC.popoverPresentationController {
@@ -662,6 +664,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
     
     @objc private func unlockProTapped() {
+        AppLogger.shared.log("unlockProTapped: isPro=\(proAccessCoordinator.isProUser())")
         presentProPaywall(
             from: self,
             gate: .removeWatermark,
@@ -789,11 +792,14 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
 
     private func handleSaveImageAction() {
+        AppLogger.shared.log("handleSaveImageAction: hasMarkupEdits=\(hasMarkupEdits), isPro=\(proAccessCoordinator.isProUser())")
         guard let exportImage = exportImageForCurrentState() else {
+            AppLogger.shared.log("handleSaveImageAction: export image unavailable")
             return
         }
 
         if !proAccessCoordinator.isProUser() && hasMarkupEdits {
+            AppLogger.shared.log("handleSaveImageAction: save image blocked by markup Pro gate")
             presentProPaywall(
                 from: self,
                 gate: .saveMarkupEffects,
@@ -810,15 +816,19 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             return
         }
 
+        AppLogger.shared.log("handleSaveImageAction: save image allowed")
         performSave(image: exportImage)
     }
 
     private func handlePDFExportAction() {
+        AppLogger.shared.log("handlePDFExportAction: isPro=\(proAccessCoordinator.isProUser())")
         guard let rawStitchedImage else {
+            AppLogger.shared.log("handlePDFExportAction: rawStitchedImage unavailable")
             return
         }
 
         if !proAccessCoordinator.isProUser() {
+            AppLogger.shared.log("handlePDFExportAction: pdf export blocked by Pro gate")
             presentProPaywall(
                 from: self,
                 gate: .exportPDF,
@@ -830,10 +840,12 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             return
         }
 
+        AppLogger.shared.log("handlePDFExportAction: pdf export allowed")
         generatePDFAndShare(image: rawStitchedImage)
     }
 
     private func removeRestrictedEffectsAndSave() {
+        AppLogger.shared.log("removeRestrictedEffectsAndSave: baseImageExists=\(baseStitchedImage != nil)")
         guard let baseImage = baseStitchedImage else {
             return
         }
@@ -843,18 +855,22 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         refreshDisplayedImage()
 
         if let exportImage = exportImageForCurrentState() {
+            AppLogger.shared.log("removeRestrictedEffectsAndSave: restricted effects removed, fallback save starting")
             performSave(image: exportImage)
         }
     }
 
     private func handleEditCompletion(from controller: EditViewController, newRanges: [(start: Int, end: Int)], images: [UIImage]) {
+        AppLogger.shared.log("handleEditCompletion: gate=applyStitchAdjustment, isPro=\(proAccessCoordinator.isProUser())")
         if proAccessCoordinator.isProUser() {
+            AppLogger.shared.log("handleEditCompletion: apply stitch adjustment directly")
             controller.dismiss(animated: true) { [weak self] in
                 self?.applyNewRanges(newRanges, to: images)
             }
             return
         }
 
+        AppLogger.shared.log("handleEditCompletion: stitch adjustment blocked by Pro gate")
         presentProPaywall(
             from: controller,
             gate: .applyStitchAdjustment,
@@ -874,6 +890,8 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         alternativeHandler: (() -> Void)? = nil,
         onPurchased: (() -> Void)? = nil
     ) {
+        let alternativeAction = alternativeActionTitle ?? "none"
+        AppLogger.shared.log("presentProPaywall: gate=\(gate), alternativeAction=\(alternativeAction), isPro=\(proAccessCoordinator.isProUser())")
         let paywallViewController = ProPaywallViewController(
             coordinator: proAccessCoordinator,
             gate: gate,
@@ -885,6 +903,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             guard let self, let paywallViewController else { return }
             paywallViewController.setLoading(true)
             self.performPurchase(from: presenter ?? paywallViewController, showSystemLoading: false) { success in
+                AppLogger.shared.log("Pro purchase flow finished: gate=\(gate), success=\(success)")
                 paywallViewController.setLoading(false)
                 if success {
                     paywallViewController.dismiss(animated: true) {

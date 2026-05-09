@@ -101,6 +101,7 @@ class EditViewController: UIViewController {
     }
     
     @objc private func doneTapped() {
+        AppLogger.shared.log("EditViewController done tapped")
         onConfirm?(self, currentRanges)
     }
 }

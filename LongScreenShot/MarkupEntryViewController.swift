@@ -91,6 +91,7 @@ final class MarkupEntryViewController: UIViewController, UITableViewDataSource, 
     }
 
     private func openMarkup() {
+        AppLogger.shared.log("MarkupEntry openMarkup tapped")
         let markupViewController = MarkupViewController(image: originalImage)
         markupViewController.onConfirm = { [weak self] image in
             self?.onConfirm?(image)
@@ -99,6 +100,7 @@ final class MarkupEntryViewController: UIViewController, UITableViewDataSource, 
     }
 
     private func openMosaic() {
+        AppLogger.shared.log("MarkupEntry openMosaic tapped")
         let mosaicViewController = MosaicViewController(image: originalImage)
         mosaicViewController.onConfirm = { [weak self] image in
             self?.onConfirm?(image)

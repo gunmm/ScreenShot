@@ -30,6 +30,7 @@ final class ProAccessCoordinator {
     }
 
     func preloadProductInfo(completion: (() -> Void)? = nil) {
+        AppLogger.shared.log("preloadProductInfo: Triggered product info preload")
         PurchaseManager.shared.loadProductInfo { _ in
             completion?()
         }
