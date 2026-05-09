@@ -59,7 +59,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        PurchaseStatusManager.shared.setPurchased(false)
+//        PurchaseStatusManager.shared.setPurchased(false)
         setupUI()
         state = .idle
         proAccessCoordinator.preloadProductInfo()
