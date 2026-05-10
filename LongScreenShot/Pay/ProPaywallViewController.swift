@@ -246,10 +246,9 @@ final class ProPaywallViewController: UIViewController {
         ownershipLabel.text = NSLocalizedString("永久权益，一次支付即可长期使用。\n无订阅、无自动续费，解锁后可一直使用当前 Pro 功能。", comment: "Permanent ownership description")
 
         let benefitItems = [
-            NSLocalizedString("1. 拼接调整", comment: "Pro benefit stitch adjustment"),
-            NSLocalizedString("2. 去水印", comment: "Pro benefit remove watermark"),
-            NSLocalizedString("3. 涂抹、打码", comment: "Pro benefit markup and mosaic"),
-            NSLocalizedString("4. 保存 PDF", comment: "Pro benefit PDF export")
+            NSLocalizedString("1. 去水印", comment: "Pro benefit remove watermark"),
+            NSLocalizedString("2. 涂抹、打码", comment: "Pro benefit markup and mosaic"),
+            NSLocalizedString("3. 保存 PDF", comment: "Pro benefit PDF export")
         ]
 
         for text in benefitItems {

@@ -172,7 +172,6 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         editButton.setTitle(NSLocalizedString("拼接调整", comment: "Edit button"), for: .normal)
         editButton.addTarget(self, action: #selector(editResult), for: .touchUpInside)
         editButton.isEnabled = false
-        addProBadge(to: editButton)
         
         markupButton.setTitle(NSLocalizedString("涂抹/打码", comment: "Markup button"), for: .normal)
         markupButton.addTarget(self, action: #selector(markupResult), for: .touchUpInside)
@@ -990,25 +989,10 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     }
 
     private func handleEditCompletion(from controller: EditViewController, newRanges: [(start: Int, end: Int)], images: [UIImage]) {
-        AppLogger.shared.log("handleEditCompletion: gate=applyStitchAdjustment, isPro=\(proAccessCoordinator.isProUser())")
-        if proAccessCoordinator.isProUser() {
-            AppLogger.shared.log("handleEditCompletion: apply stitch adjustment directly")
-            controller.dismiss(animated: true) { [weak self] in
-                self?.applyNewRanges(newRanges, to: images)
-            }
-            return
+        AppLogger.shared.log("handleEditCompletion: apply stitch adjustment directly")
+        controller.dismiss(animated: true) { [weak self] in
+            self?.applyNewRanges(newRanges, to: images)
         }
-
-        AppLogger.shared.log("handleEditCompletion: stitch adjustment blocked by Pro gate")
-        presentProPaywall(
-            from: controller,
-            gate: .applyStitchAdjustment,
-            onPurchased: { [weak self, weak controller] in
-                controller?.dismiss(animated: true) {
-                    self?.applyNewRanges(newRanges, to: images)
-                }
-            }
-        )
     }
 
     private func presentProPaywall(

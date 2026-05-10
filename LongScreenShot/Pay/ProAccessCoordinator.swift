@@ -2,7 +2,6 @@ import Foundation
 
 enum ProFeatureGate {
     case removeWatermark
-    case applyStitchAdjustment
     case saveMarkupEffects
     case exportPDF
 
@@ -10,8 +9,6 @@ enum ProFeatureGate {
         switch self {
         case .removeWatermark:
             return NSLocalizedString("去水印属于 Pro 权益。", comment: "Pro gate intro for remove watermark")
-        case .applyStitchAdjustment:
-            return NSLocalizedString("拼接调整结果应用属于 Pro 权益。", comment: "Pro gate intro for stitch adjustment")
         case .saveMarkupEffects:
             return NSLocalizedString("涂抹和打码效果保存属于 Pro 权益。", comment: "Pro gate intro for markup save")
         case .exportPDF:
@@ -47,10 +44,9 @@ final class ProAccessCoordinator {
     func benefitsText() -> String {
         [
             NSLocalizedString("Pro 权益：", comment: "Pro benefits title"),
-            NSLocalizedString("1. 拼接调整", comment: "Pro benefit stitch adjustment"),
-            NSLocalizedString("2. 去水印", comment: "Pro benefit remove watermark"),
-            NSLocalizedString("3. 涂抹、打码", comment: "Pro benefit markup and mosaic"),
-            NSLocalizedString("4. 保存 PDF", comment: "Pro benefit PDF export")
+            NSLocalizedString("1. 去水印", comment: "Pro benefit remove watermark"),
+            NSLocalizedString("2. 涂抹、打码", comment: "Pro benefit markup and mosaic"),
+            NSLocalizedString("3. 保存 PDF", comment: "Pro benefit PDF export")
         ].joined(separator: "\n")
     }
 
