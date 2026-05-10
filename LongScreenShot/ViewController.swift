@@ -1,6 +1,7 @@
 import UIKit
 import ReplayKit
 import Photos
+import CoreImage
 
 class ViewController: UIViewController, UIScrollViewDelegate {
 
@@ -26,6 +27,12 @@ class ViewController: UIViewController, UIScrollViewDelegate {
     private let demoButton = UIButton(type: .system)
     private let clearButton = UIButton(type: .system)
     private let proAccessCoordinator = ProAccessCoordinator.shared
+    private let watermarkQRCodeURLString = "https://apps.apple.com/app/id6759634662"
+    private let watermarkCIContext = CIContext()
+    private var cachedWatermarkTileKey: String?
+    private var cachedWatermarkTileImage: UIImage?
+    private var cachedQRCodeKey: String?
+    private var cachedQRCodeImage: UIImage?
     
     private let actionsStack = UIStackView()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
@@ -740,7 +747,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             return image
         }
         
-        let text = NSLocalizedString("来自：滚动长截屏-滚动长截图", comment: "Watermark text")
+        let text = NSLocalizedString("来自：滚动长截屏（扫码可获取）", comment: "Watermark text")
         let font = UIFont.systemFont(ofSize: max(30, size.width * 0.05), weight: .bold)
         
         // 第一步：将文字在一个不透明的独立画布上画成图片（先画描边，再画实心）
@@ -759,14 +766,18 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         let textSize = text.size(withAttributes: strokeAttributes)
         let padding: CGFloat = 8.0
         let tileSize = CGSize(width: textSize.width + padding * 2, height: textSize.height + padding * 2)
-        
-        UIGraphicsBeginImageContextWithOptions(tileSize, false, scale)
-        text.draw(at: CGPoint(x: padding, y: padding), withAttributes: strokeAttributes)
-        text.draw(at: CGPoint(x: padding, y: padding), withAttributes: fillAttributes)
-        let tileImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        guard let tile = tileImage else { return image }
+
+        guard let tile = makeWatermarkTileImage(
+            text: text,
+            scale: scale,
+            tileSize: tileSize,
+            padding: padding,
+            font: font,
+            strokeAttributes: strokeAttributes,
+            fillAttributes: fillAttributes
+        ) else {
+            return image
+        }
         
         // 第二步：将生成的单图 Tile 以较低的透明度全屏平铺
         let angle = -CGFloat.pi / 6 // -30 degrees
@@ -785,17 +796,120 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         for y in stride(from: startY, to: size.height + diag, by: stepY) {
             for x in stride(from: startX, to: size.width + diag, by: stepX) {
-                // 明确使用 UIImage 的自带 alpha 绘制方法，确保系统强制生效
-                tile.draw(at: CGPoint(x: x, y: y), blendMode: .normal, alpha: 0.18)
+                tile.draw(at: CGPoint(x: x, y: y), blendMode: .normal, alpha: 0.6)
             }
         }
         
         context.restoreGState()
+
+        drawFixedQRCodeWatermark(in: context, size: size)
         
         let watermarkedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
         return watermarkedImage ?? image
+    }
+
+    private func drawFixedQRCodeWatermark(in context: CGContext, size: CGSize) {
+        let qrSide = max(110.0, min(150.0, size.width * 0.16))
+        let qrInset = max(8.0, qrSide * 0.16)
+        let containerSide = qrSide + qrInset * 2
+
+        guard let qrImage = makeQRCodeImage(from: watermarkQRCodeURLString, sideLength: qrSide) else {
+            return
+        }
+
+        let originX = max(16.0, size.width - containerSide - 16.0)
+        let originY = max(16.0, size.height - containerSide - 16.0)
+        let containerRect = CGRect(x: originX, y: originY, width: containerSide, height: containerSide)
+        let qrRect = containerRect.insetBy(dx: qrInset, dy: qrInset)
+        let containerPath = UIBezierPath(roundedRect: containerRect, cornerRadius: max(10.0, containerSide * 0.16))
+        UIColor.white.setFill()
+        containerPath.fill()
+        qrImage.draw(in: qrRect)
+    }
+
+    private func makeWatermarkTileImage(
+        text: String,
+        scale: CGFloat,
+        tileSize: CGSize,
+        padding: CGFloat,
+        font: UIFont,
+        strokeAttributes: [NSAttributedString.Key: Any],
+        fillAttributes: [NSAttributedString.Key: Any]
+    ) -> UIImage? {
+        let cacheKey = [
+            text,
+            String(format: "%.2f", font.pointSize),
+            String(format: "%.2f", scale),
+            String(format: "%.2f", tileSize.width),
+            String(format: "%.2f", tileSize.height)
+        ].joined(separator: "|")
+
+        if cachedWatermarkTileKey == cacheKey, let cachedWatermarkTileImage {
+            return cachedWatermarkTileImage
+        }
+
+        UIGraphicsBeginImageContextWithOptions(tileSize, false, scale)
+        text.draw(at: CGPoint(x: padding, y: padding), withAttributes: strokeAttributes)
+        text.draw(at: CGPoint(x: padding, y: padding), withAttributes: fillAttributes)
+        let tileImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        cachedWatermarkTileKey = cacheKey
+        cachedWatermarkTileImage = tileImage
+        return tileImage
+    }
+
+    private func makeQRCodeImage(from string: String, sideLength: CGFloat) -> UIImage? {
+        let cacheKey = [string, String(format: "%.2f", sideLength)].joined(separator: "|")
+        if cachedQRCodeKey == cacheKey, let cachedQRCodeImage {
+            return cachedQRCodeImage
+        }
+
+        guard
+            let data = string.data(using: .utf8),
+            let filter = CIFilter(name: "CIQRCodeGenerator")
+        else {
+            return nil
+        }
+
+        filter.setValue(data, forKey: "inputMessage")
+        filter.setValue("H", forKey: "inputCorrectionLevel")
+
+        guard let outputImage = filter.outputImage,
+              let falseColorFilter = CIFilter(name: "CIFalseColor") else {
+            return nil
+        }
+
+        falseColorFilter.setValue(outputImage, forKey: kCIInputImageKey)
+        falseColorFilter.setValue(CIColor(color: UIColor.black.withAlphaComponent(1.0)), forKey: "inputColor0")
+        falseColorFilter.setValue(CIColor(color: .clear), forKey: "inputColor1")
+
+        guard let coloredImage = falseColorFilter.outputImage else {
+            return nil
+        }
+
+        let extent = coloredImage.extent.integral
+
+        guard let cgImage = watermarkCIContext.createCGImage(coloredImage, from: extent) else {
+            return nil
+        }
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = false
+
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: sideLength, height: sideLength), format: format)
+        let qrImage = renderer.image { rendererContext in
+            let graphicsContext = rendererContext.cgContext
+            graphicsContext.interpolationQuality = .none
+            graphicsContext.draw(cgImage, in: CGRect(x: 0, y: 0, width: sideLength, height: sideLength))
+        }
+
+        cachedQRCodeKey = cacheKey
+        cachedQRCodeImage = qrImage
+        return qrImage
     }
 
     private func exportImageForCurrentState() -> UIImage? {
