@@ -795,7 +795,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
         
         for y in stride(from: startY, to: size.height + diag, by: stepY) {
             for x in stride(from: startX, to: size.width + diag, by: stepX) {
-                tile.draw(at: CGPoint(x: x, y: y), blendMode: .normal, alpha: 0.6)
+                tile.draw(at: CGPoint(x: x, y: y), blendMode: .normal, alpha: 0.5)
             }
         }
         
