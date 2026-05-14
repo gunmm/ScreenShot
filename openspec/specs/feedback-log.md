@@ -17,6 +17,7 @@
 依托 Apple iCloud 默认机制配置了 Public Database，应用侧将创建两类 `CKRecord`：
 - `UserFeedback`：用户主动提交反馈时写入。
 - `AutoLogUpload`：用户保存长截图成功后，满足限流条件时静默写入。
+- `AppLaunchEvent`：应用每次启动时异步写入的轻量启动记录。
 
 两类记录共享以下字段：
 - `message (String)`：用户反馈的具体需求（必填）。
@@ -26,6 +27,16 @@
 - `buildVersion (String)`：构建号。
 - `userId (String)`：当前设备的 `identifierForVendor`。
 - `logFile (CKAsset)`：封装 `AppLogger` 输出文件的 URL，将几十KB至兆级信息一次性高速上抛。
+
+#### 启动埋点记录（0030）
+应用在 `didFinishLaunchingWithOptions` 阶段必须异步写入一条 `AppLaunchEvent` 记录，用于补充启动维度的基础运行样本。该记录至少包含：
+- `userId (String)`
+- `appVersion (String)`
+- `isPaid (Bool/NSNumber)`
+- `regionCode (String)`
+- `launchedAt (Date)`
+
+实现上可以额外附带 `buildVersion`、`systemVersion`、`deviceModel`，但启动记录失败时只允许写本地日志，不得阻塞应用启动或向用户弹错。
 
 #### 自动上传限流（0029）
 保存成功后可触发一次静默自动日志上传，但系统必须使用本地持久化时间戳限流：**距离上次成功自动上传时间大于等于 24 小时** 才允许再次写入 `AutoLogUpload`。自动上传失败不得影响用户看到的保存成功提示。
