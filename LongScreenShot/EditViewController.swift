@@ -37,7 +37,7 @@ class EditViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        title = "Edit Stitching"
+        title = NSLocalizedString("Edit Stitching", comment: "Edit stitching title")
         view.backgroundColor = .systemBackground
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: NSLocalizedString("取消", comment: "Cancel button"), style: .plain, target: self, action: #selector(cancelTapped))

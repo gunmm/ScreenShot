@@ -21,7 +21,7 @@ class ChunksPreviewViewController: UIViewController, UICollectionViewDataSource,
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Chunks Preview"
+        title = NSLocalizedString("Chunks Preview", comment: "Chunks preview title")
         view.backgroundColor = .systemBackground
         
         setupCollectionView()
@@ -49,7 +49,7 @@ class ChunksPreviewViewController: UIViewController, UICollectionViewDataSource,
         chunks = ChunkManager.shared.loadAllChunks()
         if chunks.isEmpty {
             let label = UILabel()
-            label.text = "No chunks found"
+            label.text = NSLocalizedString("No chunks found", comment: "No chunks found placeholder")
             label.textColor = .secondaryLabel
             label.textAlignment = .center
             label.frame = view.bounds

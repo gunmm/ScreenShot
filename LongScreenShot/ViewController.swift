@@ -372,7 +372,7 @@ class ViewController: UIViewController, UIScrollViewDelegate {
             view.isUserInteractionEnabled = true
             statusLabel.textColor = .systemRed
 #if DEBUG
-            statusLabel.text = message + "\n\n(点击此处预览分片)"
+            statusLabel.text = message + "\n\n" + NSLocalizedString("(点击此处预览分片)", comment: "Preview chunks hint")
 #else
             statusLabel.text = message
 #endif

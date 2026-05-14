@@ -5,6 +5,7 @@ import UIKit
 class CloudKitManager {
     static let shared = CloudKitManager()
     
+    private let appLaunchRecordType = "AppLaunchEvent"
     private let autoLogUploadRecordType = "AutoLogUpload"
     private let userFeedbackRecordType = "UserFeedback"
     private let autoLogUploadMessage = "save_success_auto_upload"
@@ -35,12 +36,42 @@ class CloudKitManager {
         CKContainer.default().publicCloudDatabase
     }
 
+    private var currentUserId: String {
+        UIDevice.current.identifierForVendor?.uuidString ?? "Unknown"
+    }
+
+    private var currentRegionCode: String {
+        if #available(iOS 16.0, *) {
+            return Locale.current.region?.identifier.uppercased() ?? "UNSPECIFIED"
+        }
+
+        return Locale.current.regionCode?.uppercased() ?? "UNSPECIFIED"
+    }
+
     
     func uploadFeedback(message: String, completion: @escaping (Bool, Error?) -> Void) {
         let record = makeRecord(recordType: userFeedbackRecordType, message: message, logFileURL: AppLogger.shared.currentLogFileURL)
         save(record: record) { success, error in
             DispatchQueue.main.async {
                 completion(success, error)
+            }
+        }
+    }
+
+    func uploadLaunchEvent() {
+        let launchedAt = Date()
+        let regionCode = currentRegionCode
+        let isPaid = PurchaseManager.shared.isPurchased()
+
+        AppLogger.shared.log("uploadLaunchEvent: scheduling upload for region=\(regionCode), isPaid=\(isPaid)")
+        workQueue.async { [self] in
+            let record = makeLaunchEventRecord(regionCode: regionCode, isPaid: isPaid, launchedAt: launchedAt)
+            save(record: record) { success, error in
+                if success {
+                    AppLogger.shared.log("uploadLaunchEvent: upload succeeded")
+                } else {
+                    AppLogger.shared.log("uploadLaunchEvent: upload failed: \(error?.localizedDescription ?? "Unknown")")
+                }
             }
         }
     }
@@ -85,12 +116,25 @@ class CloudKitManager {
         record["systemVersion"] = UIDevice.current.systemVersion as CKRecordValue
         record["appVersion"] = appVersion as CKRecordValue
         record["buildVersion"] = buildVersion as CKRecordValue
-        record["userId"] = (UIDevice.current.identifierForVendor?.uuidString ?? "Unknown") as CKRecordValue
+        record["userId"] = currentUserId as CKRecordValue
 
         if let logFileURL, FileManager.default.fileExists(atPath: logFileURL.path) {
             record["logFile"] = CKAsset(fileURL: logFileURL)
         }
 
+        return record
+    }
+
+    private func makeLaunchEventRecord(regionCode: String, isPaid: Bool, launchedAt: Date) -> CKRecord {
+        let record = CKRecord(recordType: appLaunchRecordType)
+        record["userId"] = currentUserId as CKRecordValue
+        record["appVersion"] = appVersion as CKRecordValue
+        record["buildVersion"] = buildVersion as CKRecordValue
+        record["systemVersion"] = UIDevice.current.systemVersion as CKRecordValue
+        record["deviceModel"] = hardwareModel as CKRecordValue
+        record["isPaid"] = NSNumber(value: isPaid)
+        record["regionCode"] = regionCode as CKRecordValue
+        record["launchedAt"] = launchedAt as CKRecordValue
         return record
     }
 

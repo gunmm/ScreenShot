@@ -80,7 +80,7 @@ class PurchaseManager: NSObject {
         guard SKPaymentQueue.canMakePayments() else {
             AppLogger.shared.log("requestPurchase: Device cannot make payments")
             DispatchQueue.main.async {
-                self.showAlert(title: "无法支付", message: "您的设备不支持应用内购买")
+                self.showAlert(title: NSLocalizedString("无法支付", comment: "Purchase unavailable title"), message: NSLocalizedString("您的设备不支持应用内购买", comment: "Purchase unavailable message"))
             }
             completion(false)
             return
@@ -93,7 +93,7 @@ class PurchaseManager: NSObject {
             guard let product = product else {
                 AppLogger.shared.log("requestPurchase: Failed to retrieve product info before purchase")
                 DispatchQueue.main.async {
-                    self.showAlert(title: "支付失败", message: "无法获取商品信息")
+                    self.showAlert(title: NSLocalizedString("支付失败", comment: "Purchase failed title"), message: NSLocalizedString("无法获取商品信息", comment: "Purchase failed product info message"))
                 }
                 self.purchaseCompletion?(false)
                 self.purchaseCompletion = nil
@@ -121,7 +121,7 @@ class PurchaseManager: NSObject {
             }
             
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            alert.addAction(UIAlertAction(title: NSLocalizedString("确定", comment: "Purchase alert confirmation"), style: .default))
             
             // 找到最顶层的视图控制器
             var presentedVC = rootViewController
@@ -234,7 +234,7 @@ extension PurchaseManager: SKPaymentTransactionObserver {
             purchaseCompletion?(true)
         } else {
             DispatchQueue.main.async {
-                self.showAlert(title: "恢复购买", message: "未找到可恢复的购买记录")
+                self.showAlert(title: NSLocalizedString("恢复购买", comment: "Restore purchase title"), message: NSLocalizedString("未找到可恢复的购买记录", comment: "Restore purchase not found"))
             }
             purchaseCompletion?(false)
         }
@@ -244,7 +244,7 @@ extension PurchaseManager: SKPaymentTransactionObserver {
     func paymentQueue(_ queue: SKPaymentQueue, restoreCompletedTransactionsFailedWithError error: Error) {
         AppLogger.shared.log("restoreCompletedTransactionsFailedWithError: \(error.localizedDescription)")
         DispatchQueue.main.async {
-            self.showAlert(title: "恢复购买失败", message: error.localizedDescription)
+            self.showAlert(title: NSLocalizedString("恢复购买失败", comment: "Restore purchase failed title"), message: error.localizedDescription)
         }
         purchaseCompletion?(false)
         purchaseCompletion = nil
@@ -278,12 +278,12 @@ extension PurchaseManager: SKPaymentTransactionObserver {
                 break
             default:
                 DispatchQueue.main.async {
-                    self.showAlert(title: "支付失败", message: error.localizedDescription)
+                    self.showAlert(title: NSLocalizedString("支付失败", comment: "Purchase failed title"), message: error.localizedDescription)
                 }
             }
         } else {
             DispatchQueue.main.async {
-                self.showAlert(title: "支付失败", message: transaction.error?.localizedDescription ?? "未知错误")
+                self.showAlert(title: NSLocalizedString("支付失败", comment: "Purchase failed title"), message: transaction.error?.localizedDescription ?? NSLocalizedString("未知错误", comment: "Unknown purchase error"))
             }
         }
         
