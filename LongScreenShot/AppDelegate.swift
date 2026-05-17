@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  LongScreenShot
+//  LongScreenShot 
 // 
 //  Created by minzhe on 2026/1/24.
 // 
